@@ -7,6 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		99D0D2142F296D1000BB6A81 /* TokenValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D2132F296D1000BB6A81 /* TokenValidationService.swift */; };
+		99D0D2152F296D1000BB6A81 /* OnboardingStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D20C2F296D1000BB6A81 /* OnboardingStepView.swift */; };
+		99D0D2162F296D1000BB6A81 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D20D2F296D1000BB6A81 /* OnboardingView.swift */; };
+		99D0D2172F296D1000BB6A81 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D20E2F296D1000BB6A81 /* OnboardingViewModel.swift */; };
+		99D0D2182F296D1000BB6A81 /* PermissionsBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D2102F296D1000BB6A81 /* PermissionsBannerView.swift */; };
+		99D0D2192F296D1000BB6A81 /* PermissionChecklistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D20F2F296D1000BB6A81 /* PermissionChecklistView.swift */; };
+		99D0D21A2F296D1000BB6A81 /* TokenInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D2122F296D1000BB6A81 /* TokenInputView.swift */; };
+		99D0D21B2F296D1000BB6A81 /* PermissionsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D2112F296D1000BB6A81 /* PermissionsState.swift */; };
+		99D0D21C2F296D1000BB6A81 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D21D2F296D1000BB6A81 /* DesignSystem.swift */; };
 		A1000001 /* PRPulseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001 /* PRPulseApp.swift */; };
 		A1000002 /* GitHubService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002 /* GitHubService.swift */; };
 		A1000003 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003 /* Models.swift */; };
@@ -16,6 +25,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		99D0D20C2F296D1000BB6A81 /* OnboardingStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/OnboardingStepView.swift; sourceTree = "<group>"; };
+		99D0D20D2F296D1000BB6A81 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/OnboardingView.swift; sourceTree = "<group>"; };
+		99D0D20E2F296D1000BB6A81 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/OnboardingViewModel.swift; sourceTree = "<group>"; };
+		99D0D20F2F296D1000BB6A81 /* PermissionChecklistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/PermissionChecklistView.swift; sourceTree = "<group>"; };
+		99D0D2102F296D1000BB6A81 /* PermissionsBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/PermissionsBannerView.swift; sourceTree = "<group>"; };
+		99D0D2112F296D1000BB6A81 /* PermissionsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/PermissionsState.swift; sourceTree = "<group>"; };
+		99D0D2122F296D1000BB6A81 /* TokenInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/TokenInputView.swift; sourceTree = "<group>"; };
+		99D0D2132F296D1000BB6A81 /* TokenValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/TokenValidationService.swift; sourceTree = "<group>"; };
+		99D0D21D2F296D1000BB6A81 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/DesignSystem.swift; sourceTree = "<group>"; };
 		A2000001 /* PRPulseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulseApp.swift; sourceTree = "<group>"; };
 		A2000002 /* GitHubService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubService.swift; sourceTree = "<group>"; };
 		A2000003 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
@@ -38,9 +56,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A4000001 /* root */ = {
+		A4000001 = {
 			isa = PBXGroup;
 			children = (
+				99D0D20C2F296D1000BB6A81 /* OnboardingStepView.swift */,
+				99D0D20D2F296D1000BB6A81 /* OnboardingView.swift */,
+				99D0D20E2F296D1000BB6A81 /* OnboardingViewModel.swift */,
+				99D0D20F2F296D1000BB6A81 /* PermissionChecklistView.swift */,
+				99D0D2102F296D1000BB6A81 /* PermissionsBannerView.swift */,
+				99D0D2112F296D1000BB6A81 /* PermissionsState.swift */,
+				99D0D2122F296D1000BB6A81 /* TokenInputView.swift */,
+				99D0D2132F296D1000BB6A81 /* TokenValidationService.swift */,
+				99D0D21D2F296D1000BB6A81 /* DesignSystem.swift */,
 				A4000002 /* PRPulse */,
 				A4000003 /* Products */,
 			);
@@ -112,7 +139,7 @@
 				en,
 				Base,
 			);
-			mainGroup = A4000001 /* root */;
+			mainGroup = A4000001;
 			productRefGroup = A4000003 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -141,6 +168,15 @@
 				A1000001 /* PRPulseApp.swift in Sources */,
 				A1000002 /* GitHubService.swift in Sources */,
 				A1000003 /* Models.swift in Sources */,
+				99D0D2142F296D1000BB6A81 /* TokenValidationService.swift in Sources */,
+				99D0D2152F296D1000BB6A81 /* OnboardingStepView.swift in Sources */,
+				99D0D2162F296D1000BB6A81 /* OnboardingView.swift in Sources */,
+				99D0D2172F296D1000BB6A81 /* OnboardingViewModel.swift in Sources */,
+				99D0D2182F296D1000BB6A81 /* PermissionsBannerView.swift in Sources */,
+				99D0D2192F296D1000BB6A81 /* PermissionChecklistView.swift in Sources */,
+				99D0D21A2F296D1000BB6A81 /* TokenInputView.swift in Sources */,
+				99D0D21B2F296D1000BB6A81 /* PermissionsState.swift in Sources */,
+				99D0D21C2F296D1000BB6A81 /* DesignSystem.swift in Sources */,
 				A1000004 /* PRListView.swift in Sources */,
 				A1000005 /* TokenManager.swift in Sources */,
 			);
@@ -205,7 +241,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -229,7 +264,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -271,7 +305,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
 	};
 	rootObject = A6000001 /* Project object */;
 }

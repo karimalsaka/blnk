@@ -8,6 +8,7 @@ final class GitHubService: ObservableObject {
     @Published var lastUpdated: Date?
     @Published var activeFilter: PRFilter = .all
     @Published var useMockData = false
+    @Published var permissionsState = PermissionsState()
 
     var filteredPullRequests: [PullRequest] {
         switch activeFilter {
@@ -318,9 +319,7 @@ final class GitHubService: ObservableObject {
 
     // MARK: - Mock Data
 
-    private func loadMockData() {
-        isLoading = true
-        let mockPRs: [PullRequest] = [
+    private static let mockPullRequests: [PullRequest] = [
             PullRequest(
                 id: 1, number: 142, title: "feat: Add dark mode support across all components",
                 repoFullName: "acme/frontend", htmlURL: URL(string: "https://github.com")!,
@@ -380,8 +379,26 @@ final class GitHubService: ObservableObject {
                 ]
             ),
         ]
-        pullRequests = mockPRs
+
+    private func loadMockData() {
+        isLoading = true
+        pullRequests = Self.mockPullRequests
         lastUpdated = Date()
         isLoading = false
+    }
+}
+
+extension GitHubService {
+    static func preview() -> GitHubService {
+        let service = GitHubService()
+        service.pullRequests = Self.mockPullRequests
+        service.lastUpdated = Date()
+        service.permissionsState = PermissionsState(
+            canReadPullRequests: true,
+            canReadCommitStatuses: true,
+            canReadReviews: true,
+            canReadComments: true
+        )
+        return service
     }
 }

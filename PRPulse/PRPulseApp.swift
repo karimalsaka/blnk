@@ -46,20 +46,24 @@ class SettingsWindowController {
             return
         }
 
-        let view = TokenSettingsView(isPresented: .constant(true), onDismiss: { [weak self] in
-            self?.window?.close()
-        }, onSave: onSave)
+        let view = OnboardingView()
+            .onDisappear {
+                onSave()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                    self?.window?.close()
+                }
+            }
 
         let hostingView = NSHostingView(rootView: view)
-        hostingView.frame = NSRect(x: 0, y: 0, width: 400, height: 280)
+        hostingView.frame = NSRect(x: 0, y: 0, width: 600, height: 700)
 
         let w = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 400, height: 280),
+            contentRect: NSRect(x: 0, y: 0, width: 600, height: 700),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false
         )
-        w.title = "PRPulse Settings"
+        w.title = "PRPulse Setup"
         w.contentView = hostingView
         w.center()
         w.isReleasedWhenClosed = false
@@ -77,31 +81,27 @@ struct MenuBarIcon: View {
     var body: some View {
         HStack(spacing: 2) {
             Image(systemName: iconName)
-                .symbolRenderingMode(.palette)
-                .foregroundStyle(iconColor, .primary)
+                .symbolRenderingMode(.monochrome)
+                .foregroundColor(iconColor)
             if count > 0 {
                 Text("\(count)")
                     .font(.caption2)
                     .monospacedDigit()
+                    .foregroundStyle(.primary)
             }
         }
     }
 
     private var iconName: String {
-        switch health {
-        case .success: return "arrow.triangle.pull"
-        case .failure: return "exclamationmark.arrow.triangle.2.circlepath"
-        case .pending: return "arrow.triangle.pull"
-        case .unknown: return "arrow.triangle.pull"
-        }
+        "arrow.triangle.pull"
     }
 
     private var iconColor: Color {
         switch health {
-        case .success: return .green
-        case .failure: return .red
-        case .pending: return .orange
-        case .unknown: return .secondary
+        case .success: return AppTheme.success
+        case .failure: return AppTheme.danger
+        case .pending: return AppTheme.warning
+        case .unknown: return .primary
         }
     }
 }
