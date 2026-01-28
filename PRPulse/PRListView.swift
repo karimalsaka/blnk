@@ -80,21 +80,26 @@ struct PRListView: View {
                 }
 
                 if service.filteredPullRequests.isEmpty && !service.isLoading && service.errorMessage == nil {
-                    AppCard {
-                        VStack(spacing: 10) {
-                            Image(systemName: service.activeFilter == .all ? "checkmark.circle" : "line.3.horizontal.decrease.circle")
-                                .font(.system(size: 36))
-                                .foregroundColor(service.activeFilter == .all ? AppTheme.success : .secondary)
-                            Text(service.activeFilter == .all ? "All clear!" : "No matches")
-                                .font(.system(size: 14, weight: .semibold, design: .rounded))
-                            Text(service.activeFilter == .all ? "No open pull requests" : "No PRs match this filter")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                    VStack(spacing: 0) {
+                        AppCard {
+                            VStack(spacing: 10) {
+                                Image(systemName: service.activeFilter == .all ? "checkmark.circle" : "line.3.horizontal.decrease.circle")
+                                    .font(.system(size: 36))
+                                    .foregroundColor(service.activeFilter == .all ? AppTheme.success : .secondary)
+                                Text(service.activeFilter == .all ? "All clear!" : "No matches")
+                                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                Text(service.activeFilter == .all ? "No open pull requests" : "No PRs match this filter")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(18)
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding(18)
+                        .padding(.horizontal, 14)
+
+                        Spacer()
                     }
-                    .padding(.horizontal, 14)
+                    .frame(maxHeight: 650)
                 } else {
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 12) {
@@ -139,13 +144,7 @@ struct PRListView: View {
     }
 
     private func countFor(_ filter: PRFilter) -> Int {
-        let prs = service.pullRequests
-        switch filter {
-        case .all: return prs.count
-        case .needsAttention: return prs.filter { $0.ciStatus == .failure || $0.hasConflicts || $0.reviewState == .changesRequested }.count
-        case .approved: return prs.filter { $0.reviewState == .approved }.count
-        case .drafts: return prs.filter { $0.isDraft }.count
-        }
+        return service.count(for: filter)
     }
 }
 
@@ -232,151 +231,213 @@ struct PRRowView: View {
     let pr: PullRequest
     let permissionsState: PermissionsState
     @State private var isHovered = false
+    @State private var showComments = false
 
     var body: some View {
-        Button(action: {
-            NSWorkspace.shared.open(pr.htmlURL)
-        }) {
-            let cornerRadius: CGFloat = 16
-            ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(AppTheme.surface)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                            .stroke(AppTheme.stroke.opacity(0.6), lineWidth: 1)
-                    )
-                    .shadow(color: Color.black.opacity(isHovered ? 0.1 : 0.04), radius: 8, x: 0, y: 4)
+        let cornerRadius: CGFloat = 16
+        ZStack(alignment: .leading) {
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .fill(AppTheme.surface)
+                .overlay(
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .fill(Color.white.opacity(isHovered ? 0.04 : 0))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .stroke(isHovered ? AppTheme.accent.opacity(0.45) : AppTheme.stroke.opacity(0.6), lineWidth: 1)
+                )
+                .shadow(color: Color.black.opacity(isHovered ? 0.12 : 0.04), radius: isHovered ? 10 : 8, x: 0, y: isHovered ? 6 : 4)
 
-                Rectangle()
-                    .fill(statusAccent)
-                    .frame(width: 4)
-                    .cornerRadius(2)
-                    .padding(.vertical, cornerRadius)
-                    .allowsHitTesting(false)
+            Rectangle()
+                .fill(statusAccent)
+                .frame(width: 4)
+                .cornerRadius(2)
+                .padding(.vertical, cornerRadius)
+                .allowsHitTesting(false)
 
-                VStack(alignment: .leading, spacing: 8) {
-                    // Top line: repo + number + draft badge
-                    HStack(spacing: 6) {
-                        Text(pr.repoName)
-                            .font(.system(size: 12, weight: .semibold, design: .rounded))
-                            .foregroundColor(AppTheme.accent)
-                        Text("#\(pr.number)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        if pr.isDraft {
-                            Text("DRAFT")
-                                .font(.system(size: 9, weight: .bold, design: .rounded))
+            VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        // Top line: repo + number + draft badge
+                        HStack(spacing: 6) {
+                            Text(pr.repoName)
+                                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                .foregroundColor(AppTheme.accent)
+                            Text("#\(pr.number)")
+                                .font(.caption)
                                 .foregroundColor(.secondary)
+                            if pr.isDraft {
+                                Text("DRAFT")
+                                    .font(.system(size: 9, weight: .bold, design: .rounded))
+                                    .foregroundColor(.secondary)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.secondary.opacity(0.15))
+                                    .cornerRadius(6)
+                            }
+                            Spacer()
+                            // Conflict badge (top-right, prominent)
+                            if pr.hasConflicts {
+                                HStack(spacing: 3) {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .font(.system(size: 9))
+                                    Text("Conflicts")
+                                        .font(.system(size: 9, weight: .semibold, design: .rounded))
+                                }
+                                .foregroundColor(AppTheme.danger)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Color.secondary.opacity(0.15))
+                                .background(AppTheme.dangerSoft)
                                 .cornerRadius(6)
                         }
-                        Spacer()
-                        // Conflict badge (top-right, prominent)
-                        if pr.hasConflicts {
-                            HStack(spacing: 3) {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .font(.system(size: 9))
-                                Text("Conflicts")
-                                    .font(.system(size: 9, weight: .semibold, design: .rounded))
+                        }
+
+                        // Title
+                        Text(pr.title)
+                            .font(.system(size: 13, weight: .semibold, design: .rounded))
+                            .lineLimit(2)
+                            .foregroundColor(.primary)
+
+                        // Status pills
+                        HStack(spacing: 8) {
+                            // CI Status pill — only show if we have permission and actual CI data
+                            if permissionsState.canReadCommitStatuses && pr.ciStatus != .unknown {
+                                StatusPill(
+                                    icon: pr.ciStatus.icon,
+                                    text: pr.ciStatus.label,
+                                    color: ciColor(pr.ciStatus)
+                                )
                             }
-                            .foregroundColor(AppTheme.danger)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(AppTheme.dangerSoft)
-                            .cornerRadius(6)
-                    }
-                    }
 
-                    // Title
-                    Text(pr.title)
-                        .font(.system(size: 13, weight: .semibold, design: .rounded))
-                        .lineLimit(2)
-                        .foregroundColor(.primary)
-
-                    // Status pills
-                    HStack(spacing: 8) {
-                        // CI Status pill — only show if we have permission and actual CI data
-                        if permissionsState.canReadCommitStatuses && pr.ciStatus != .unknown {
-                            StatusPill(
-                                icon: pr.ciStatus.icon,
-                                text: pr.ciStatus.label,
-                                color: ciColor(pr.ciStatus)
-                            )
-                        }
-
-                        // Review State pill — only show if we have permission
-                        if permissionsState.canReadReviews {
-                            StatusPill(
-                                icon: pr.reviewState.icon,
-                                text: pr.reviewState.label,
-                                color: reviewColor(pr.reviewState)
-                            )
-                        }
-
-                        // Comments — only show if we have permission
-                        if permissionsState.canReadComments && pr.commentCount > 0 {
-                            HStack(spacing: 4) {
-                                Image(systemName: "bubble.left.fill")
-                                    .font(.system(size: 9))
-                                Text("\(pr.commentCount)")
-                                    .font(.caption2)
-                                    .fontWeight(.medium)
+                            // Review State pill — only show if we have permission
+                            if permissionsState.canReadReviews {
+                                StatusPill(
+                                    icon: pr.reviewState.icon,
+                                    text: pr.reviewState.label,
+                                    color: reviewColor(pr.reviewState)
+                                )
                             }
-                            .foregroundColor(.secondary)
-                        }
-                    }
 
-                    // Failed checks detail — only show if we have permission and real failures
-                    if permissionsState.canReadCommitStatuses && !pr.failedChecks.isEmpty && pr.ciStatus == .failure {
-                        VStack(alignment: .leading, spacing: 3) {
-                            ForEach(pr.failedChecks.filter { !$0.hasPrefix("⚠️") }, id: \.self) { name in
+                            // Comments — only show if we have permission
+                            if permissionsState.canReadComments && pr.commentCount > 0 {
                                 HStack(spacing: 4) {
-                                    Image(systemName: "xmark.circle.fill")
+                                    Image(systemName: "bubble.left.fill")
                                         .font(.system(size: 9))
-                                        .foregroundColor(AppTheme.danger)
-                                    Text(name)
+                                    Text("\(pr.commentCount)")
                                         .font(.caption2)
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(1)
+                                        .fontWeight(.medium)
                                 }
+                                .foregroundColor(.secondary)
                             }
                         }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 6)
-                        .background(AppTheme.dangerSoft.opacity(0.6))
-                        .cornerRadius(8)
-                    }
 
-                    // Recent comments — only show if we have permission
-                    if permissionsState.canReadComments && !pr.recentComments.isEmpty {
-                        VStack(alignment: .leading, spacing: 4) {
-                            ForEach(pr.recentComments) { comment in
-                                HStack(alignment: .top, spacing: 4) {
-                                    Text(comment.author)
-                                        .font(.caption2)
-                                        .fontWeight(.semibold)
-                                        .foregroundColor(AppTheme.accent)
-                                    Text(comment.preview)
-                                        .font(.caption2)
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(2)
+                        // Failed checks detail — only show if we have permission and real failures
+                        if permissionsState.canReadCommitStatuses && !pr.failedChecks.isEmpty && pr.ciStatus == .failure {
+                            VStack(alignment: .leading, spacing: 3) {
+                                ForEach(pr.failedChecks.filter { !$0.hasPrefix("⚠️") }, id: \.self) { name in
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .font(.system(size: 9))
+                                            .foregroundColor(AppTheme.danger)
+                                        Text(name)
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                            .lineLimit(1)
+                                    }
                                 }
                             }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 6)
+                            .background(AppTheme.dangerSoft.opacity(0.6))
+                            .cornerRadius(8)
                         }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 6)
-                        .background(Color.primary.opacity(0.04))
-                        .cornerRadius(8)
+                    }
+                    .allowsHitTesting(false)
+
+                    // Comments — only show if we have permission
+                    if permissionsState.canReadComments && pr.commentCount > 0 {
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack(spacing: 10) {
+                                Image(systemName: showComments ? "chevron.down.circle.fill" : "chevron.right.circle.fill")
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundColor(showComments ? AppTheme.accent : .secondary)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Discussion")
+                                        .font(.caption)
+                                        .fontWeight(.semibold)
+                                    Text(showComments ? "Hide comments" : "Show latest comments")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                Text("\(pr.commentCount)")
+                                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                                    .foregroundColor(showComments ? .white : AppTheme.accent)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(showComments ? AppTheme.accent : AppTheme.accentSoft)
+                                    .cornerRadius(7)
+                            }
+                            .foregroundColor(.primary)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .fill(AppTheme.surface)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                            .stroke(AppTheme.stroke.opacity(0.5), lineWidth: 1)
+                                    )
+                            )
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                                    showComments.toggle()
+                                }
+                            }
+
+                            if showComments && !pr.recentComments.isEmpty {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    ForEach(pr.recentComments) { comment in
+                                        HStack(alignment: .top, spacing: 8) {
+                                            Circle()
+                                                .fill(AppTheme.accent.opacity(0.18))
+                                                .frame(width: 18, height: 18)
+                                                .overlay(
+                                                    Text(comment.author.prefix(1).uppercased())
+                                                        .font(.system(size: 9, weight: .bold, design: .rounded))
+                                                        .foregroundColor(AppTheme.accent)
+                                                )
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text(comment.author)
+                                                    .font(.caption2)
+                                                    .fontWeight(.semibold)
+                                                    .foregroundColor(AppTheme.accent)
+                                                Text(comment.preview)
+                                                    .font(.caption2)
+                                                    .foregroundColor(.secondary)
+                                                    .lineLimit(3)
+                                            }
+                                            Spacer(minLength: 0)
+                                        }
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 8)
+                                        .background(Color.primary.opacity(0.04))
+                                        .cornerRadius(10)
+                                    }
+                                }
+                                .transition(.opacity.combined(with: .scale(scale: 0.98, anchor: .top)))
+                            }
+                        }
+                        .animation(.spring(response: 0.3, dampingFraction: 0.85), value: showComments)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-            }
-            .contentShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
         }
-        .buttonStyle(.plain)
+        .contentShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+        .onTapGesture {
+            NSWorkspace.shared.open(pr.htmlURL)
+        }
         .onHover { hovering in
             withAnimation(.easeInOut(duration: 0.2)) {
                 isHovered = hovering

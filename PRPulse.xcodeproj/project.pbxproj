@@ -16,6 +16,8 @@
 		99D0D21A2F296D1000BB6A81 /* TokenInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D2122F296D1000BB6A81 /* TokenInputView.swift */; };
 		99D0D21B2F296D1000BB6A81 /* PermissionsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D2112F296D1000BB6A81 /* PermissionsState.swift */; };
 		99D0D21C2F296D1000BB6A81 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D21D2F296D1000BB6A81 /* DesignSystem.swift */; };
+		99D0D21E2F296D1000BB6A81 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D21F2F296D1000BB6A81 /* SettingsView.swift */; };
+		99D0D2202F296D1000BB6A81 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D2212F296D1000BB6A81 /* SettingsViewModel.swift */; };
 		A1000001 /* PRPulseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001 /* PRPulseApp.swift */; };
 		A1000002 /* GitHubService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002 /* GitHubService.swift */; };
 		A1000003 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003 /* Models.swift */; };
@@ -34,6 +36,8 @@
 		99D0D2122F296D1000BB6A81 /* TokenInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/TokenInputView.swift; sourceTree = "<group>"; };
 		99D0D2132F296D1000BB6A81 /* TokenValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/TokenValidationService.swift; sourceTree = "<group>"; };
 		99D0D21D2F296D1000BB6A81 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/DesignSystem.swift; sourceTree = "<group>"; };
+		99D0D21F2F296D1000BB6A81 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/SettingsView.swift; sourceTree = "<group>"; };
+		99D0D2212F296D1000BB6A81 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/SettingsViewModel.swift; sourceTree = "<group>"; };
 		A2000001 /* PRPulseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulseApp.swift; sourceTree = "<group>"; };
 		A2000002 /* GitHubService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubService.swift; sourceTree = "<group>"; };
 		A2000003 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
@@ -68,6 +72,8 @@
 				99D0D2122F296D1000BB6A81 /* TokenInputView.swift */,
 				99D0D2132F296D1000BB6A81 /* TokenValidationService.swift */,
 				99D0D21D2F296D1000BB6A81 /* DesignSystem.swift */,
+				99D0D21F2F296D1000BB6A81 /* SettingsView.swift */,
+				99D0D2212F296D1000BB6A81 /* SettingsViewModel.swift */,
 				A4000002 /* PRPulse */,
 				A4000003 /* Products */,
 			);
@@ -177,6 +183,8 @@
 				99D0D21A2F296D1000BB6A81 /* TokenInputView.swift in Sources */,
 				99D0D21B2F296D1000BB6A81 /* PermissionsState.swift in Sources */,
 				99D0D21C2F296D1000BB6A81 /* DesignSystem.swift in Sources */,
+				99D0D21E2F296D1000BB6A81 /* SettingsView.swift in Sources */,
+				99D0D2202F296D1000BB6A81 /* SettingsViewModel.swift in Sources */,
 				A1000004 /* PRListView.swift in Sources */,
 				A1000005 /* TokenManager.swift in Sources */,
 			);

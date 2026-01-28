@@ -190,7 +190,7 @@ struct ReviewUser: Codable {
 }
 
 struct PRComment: Identifiable, Equatable {
-    let id: Int
+    let id: String
     let author: String
     let body: String
     let createdAt: Date

@@ -12,12 +12,12 @@ struct PRPulseApp: App {
                     if TokenManager.shared.hasToken {
                         service.startPolling()
                     } else {
-                        showSettingsWindow()
+                        showSettingsWindow(showOnboarding: true)
                     }
                 }
                 .onChange(of: showingTokenSheet) { newValue in
                     if newValue {
-                        showSettingsWindow()
+                        showSettingsWindow(showOnboarding: false)
                         showingTokenSheet = false
                     }
                 }
@@ -27,9 +27,9 @@ struct PRPulseApp: App {
         .menuBarExtraStyle(.window)
     }
 
-    private func showSettingsWindow() {
+    private func showSettingsWindow(showOnboarding: Bool) {
         let service = self.service
-        SettingsWindowController.shared.show {
+        SettingsWindowController.shared.show(showOnboarding: showOnboarding) {
             service.startPolling()
         }
     }
@@ -39,20 +39,34 @@ class SettingsWindowController {
     static let shared = SettingsWindowController()
     private var window: NSWindow?
 
-    func show(onSave: @escaping () -> Void) {
+    func show(showOnboarding: Bool, onSave: @escaping () -> Void) {
         if let existing = window, existing.isVisible {
             existing.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
             return
         }
 
-        let view = OnboardingView()
-            .onDisappear {
-                onSave()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-                    self?.window?.close()
+        let view: AnyView
+        if showOnboarding || !TokenManager.shared.hasToken {
+            view = AnyView(
+                OnboardingView()
+                    .onDisappear {
+                        onSave()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                            self?.window?.close()
+                        }
+                    }
+            )
+        } else {
+            view = AnyView(
+                SettingsView {
+                    onSave()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                        self?.window?.close()
+                    }
                 }
-            }
+            )
+        }
 
         let hostingView = NSHostingView(rootView: view)
         hostingView.frame = NSRect(x: 0, y: 0, width: 600, height: 700)
@@ -68,6 +82,7 @@ class SettingsWindowController {
         w.center()
         w.isReleasedWhenClosed = false
         w.makeKeyAndOrderFront(nil)
+        w.orderFrontRegardless()
         NSApp.activate(ignoringOtherApps: true)
 
         self.window = w

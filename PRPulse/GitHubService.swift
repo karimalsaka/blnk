@@ -11,12 +11,20 @@ final class GitHubService: ObservableObject {
     @Published var permissionsState = PermissionsState()
 
     var filteredPullRequests: [PullRequest] {
-        switch activeFilter {
+        return pullRequests(for: activeFilter)
+    }
+
+    func pullRequests(for filter: PRFilter) -> [PullRequest] {
+        switch filter {
         case .all: return pullRequests
         case .needsAttention: return pullRequests.filter { $0.ciStatus == .failure || $0.hasConflicts || $0.reviewState == .changesRequested }
         case .approved: return pullRequests.filter { $0.reviewState == .approved }
         case .drafts: return pullRequests.filter { $0.isDraft }
         }
+    }
+
+    func count(for filter: PRFilter) -> Int {
+        return pullRequests(for: filter).count
     }
 
     private var timer: Timer?
@@ -140,7 +148,7 @@ final class GitHubService: ObservableObject {
                     }
                   }
                 }
-                comments(last: 5) {
+                comments(last: 100) {
                   totalCount
                   nodes {
                     id
@@ -151,52 +159,40 @@ final class GitHubService: ObservableObject {
                     }
                   }
                 }
+                reviewThreads(last: 50) {
+                  nodes {
+                    comments(last: 20) {
+                      nodes {
+                        id
+                        body
+                        createdAt
+                        author {
+                          login
+                        }
+                      }
+                    }
+                  }
+                }
               }
             }
           }
         }
         """
 
-        var request = URLRequest(url: graphQLURL)
-        request.httpMethod = "POST"
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        let body: [String: Any] = ["query": query]
-        request.httpBody = try JSONSerialization.data(withJSONObject: body)
-
-        let (data, resp) = try await URLSession.shared.data(for: request)
-        guard let http = resp as? HTTPURLResponse, http.statusCode == 200 else {
-            let code = (resp as? HTTPURLResponse)?.statusCode ?? 0
-            let body = String(data: data, encoding: .utf8) ?? ""
-            throw NSError(domain: "GitHub", code: code, userInfo: [NSLocalizedDescriptionKey: "GraphQL error (HTTP \(code)): \(body.prefix(200))"])
-        }
-
-        // Parse the GraphQL response
-        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let dataObj = json["data"] as? [String: Any],
-              let viewer = dataObj["viewer"] as? [String: Any],
+        let dataObj = try await performGraphQLRequest(token: token, query: query)
+        guard let viewer = dataObj["viewer"] as? [String: Any],
               let pullRequests = viewer["pullRequests"] as? [String: Any],
               let nodes = pullRequests["nodes"] as? [[String: Any]] else {
-
-            // Check for GraphQL errors
-            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let errors = json["errors"] as? [[String: Any]],
-               let msg = errors.first?["message"] as? String {
-                throw NSError(domain: "GitHub", code: 0, userInfo: [NSLocalizedDescriptionKey: msg])
-            }
             throw NSError(domain: "GitHub", code: 0, userInfo: [NSLocalizedDescriptionKey: "Unexpected GraphQL response"])
         }
-
-        let botNames = Set(["codecov", "dependabot", "renovate", "github-actions", "sonarcloud", "vercel", "netlify", "tuist", "reptile"])
-
-        return nodes.compactMap { node -> PullRequest? in
+        var results: [PullRequest] = []
+        for node in nodes {
             guard let number = node["number"] as? Int,
                   let title = node["title"] as? String,
                   let urlStr = node["url"] as? String,
                   let url = URL(string: urlStr),
                   let repo = node["repository"] as? [String: Any],
-                  let repoFullName = repo["nameWithOwner"] as? String else { return nil }
+                  let repoFullName = repo["nameWithOwner"] as? String else { continue }
 
             let isDraft = node["isDraft"] as? Bool ?? false
             let mergeableStr = node["mergeable"] as? String ?? "UNKNOWN"
@@ -266,7 +262,8 @@ final class GitHubService: ObservableObject {
                 }
             }
 
-            // Parse comments (filter bots)
+            // Parse comments (hide selected bots)
+            let hiddenBotNames = Set(["tuist", "greplite", "greptile-apps", "github-actions"])
             var recentComments: [PRComment] = []
             var commentCount = 0
             if let comments = node["comments"] as? [String: Any] {
@@ -282,15 +279,13 @@ final class GitHubService: ObservableObject {
                               let dateStr = c["createdAt"] as? String else { return nil }
 
                         let loginLower = login.lowercased()
-                        let isBot = loginLower.contains("bot")
-                            || loginLower.contains("[bot]")
-                            || botNames.contains(where: { loginLower.contains($0) })
-                        if isBot { return nil }
+                        if hiddenBotNames.contains(where: { loginLower.contains($0) }) {
+                            return nil
+                        }
 
-                        // Use databaseId or hash for stable ID
-                        let id = c["id"] as? String ?? ""
+                        let id = c["id"] as? String ?? UUID().uuidString
                         return PRComment(
-                            id: id.hashValue,
+                            id: id,
                             author: login,
                             body: body,
                             createdAt: formatter.date(from: dateStr) ?? Date()
@@ -299,22 +294,87 @@ final class GitHubService: ObservableObject {
                 }
             }
 
-            return PullRequest(
+            if let reviewThreads = node["reviewThreads"] as? [String: Any],
+               let threadNodes = reviewThreads["nodes"] as? [[String: Any]] {
+                let formatter = ISO8601DateFormatter()
+                formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+                for thread in threadNodes {
+                    guard let comments = thread["comments"] as? [String: Any],
+                          let commentNodes = comments["nodes"] as? [[String: Any]] else { continue }
+
+                    let parsed: [PRComment] = commentNodes.compactMap { c -> PRComment? in
+                        guard let author = c["author"] as? [String: Any],
+                              let login = author["login"] as? String,
+                              let body = c["body"] as? String,
+                              let dateStr = c["createdAt"] as? String else { return nil }
+
+                        let loginLower = login.lowercased()
+                        if hiddenBotNames.contains(where: { loginLower.contains($0) }) {
+                            return nil
+                        }
+
+                        let id = c["id"] as? String ?? UUID().uuidString
+                        return PRComment(
+                            id: id,
+                            author: login,
+                            body: body,
+                            createdAt: formatter.date(from: dateStr) ?? Date()
+                        )
+                    }
+                    recentComments.append(contentsOf: parsed)
+                }
+            }
+
+            recentComments.sort { $0.createdAt > $1.createdAt }
+
+            results.append(PullRequest(
                 id: number,
                 number: number,
                 title: title,
                 repoFullName: repoFullName,
                 htmlURL: url,
                 headSHA: "",
-                commentCount: commentCount,
+                commentCount: recentComments.count,
                 isDraft: isDraft,
                 ciStatus: ciStatus,
                 failedChecks: failedChecks,
                 reviewState: reviewState,
                 hasConflicts: hasConflicts,
                 recentComments: recentComments
-            )
+            ))
         }
+        return results
+    }
+
+    private func performGraphQLRequest(token: String, query: String) async throws -> [String: Any] {
+        var request = URLRequest(url: graphQLURL)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body: [String: Any] = ["query": query]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, resp) = try await URLSession.shared.data(for: request)
+        guard let http = resp as? HTTPURLResponse, http.statusCode == 200 else {
+            let code = (resp as? HTTPURLResponse)?.statusCode ?? 0
+            let body = String(data: data, encoding: .utf8) ?? ""
+            throw NSError(domain: "GitHub", code: code, userInfo: [NSLocalizedDescriptionKey: "GraphQL error (HTTP \(code)): \(body.prefix(200))"])
+        }
+
+        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw NSError(domain: "GitHub", code: 0, userInfo: [NSLocalizedDescriptionKey: "Unexpected GraphQL response"])
+        }
+        guard let dataObj = json["data"] as? [String: Any] else {
+            throw NSError(domain: "GitHub", code: 0, userInfo: [NSLocalizedDescriptionKey: "Unexpected GraphQL response"])
+        }
+        if let errors = json["errors"] as? [[String: Any]],
+           let msg = errors.first?["message"] as? String,
+           json["data"] == nil {
+            throw NSError(domain: "GitHub", code: 0, userInfo: [NSLocalizedDescriptionKey: msg])
+        }
+        return dataObj
     }
 
     // MARK: - Mock Data
@@ -327,8 +387,8 @@ final class GitHubService: ObservableObject {
                 ciStatus: .success, failedChecks: [], reviewState: .approved,
                 hasConflicts: false,
                 recentComments: [
-                    PRComment(id: 1, author: "sarah", body: "LGTM! Nice work on the color tokens.", createdAt: Date().addingTimeInterval(-3600)),
-                    PRComment(id: 2, author: "mike", body: "Approved — tested on Safari and Chrome.", createdAt: Date().addingTimeInterval(-1800))
+                    PRComment(id: "mock-1", author: "sarah", body: "LGTM! Nice work on the color tokens.", createdAt: Date().addingTimeInterval(-3600)),
+                    PRComment(id: "mock-2", author: "mike", body: "Approved — tested on Safari and Chrome.", createdAt: Date().addingTimeInterval(-1800))
                 ]
             ),
             PullRequest(
@@ -338,7 +398,7 @@ final class GitHubService: ObservableObject {
                 ciStatus: .failure, failedChecks: ["Build / test-linux", "CI / integration-tests"], reviewState: .changesRequested,
                 hasConflicts: true,
                 recentComments: [
-                    PRComment(id: 3, author: "alex", body: "The connection pool still leaks under high concurrency. See my inline comments.", createdAt: Date().addingTimeInterval(-7200))
+                    PRComment(id: "mock-3", author: "alex", body: "The connection pool still leaks under high concurrency. See my inline comments.", createdAt: Date().addingTimeInterval(-7200))
                 ]
             ),
             PullRequest(
@@ -355,7 +415,7 @@ final class GitHubService: ObservableObject {
                 ciStatus: .unknown, failedChecks: [], reviewState: .unknown,
                 hasConflicts: false,
                 recentComments: [
-                    PRComment(id: 4, author: "karim", body: "Still exploring — don't review yet", createdAt: Date().addingTimeInterval(-86400))
+                    PRComment(id: "mock-4", author: "karim", body: "Still exploring — don't review yet", createdAt: Date().addingTimeInterval(-86400))
                 ]
             ),
             PullRequest(
@@ -365,7 +425,7 @@ final class GitHubService: ObservableObject {
                 ciStatus: .success, failedChecks: [], reviewState: .approved,
                 hasConflicts: false,
                 recentComments: [
-                    PRComment(id: 5, author: "dana", body: "Ship it! 🚀", createdAt: Date().addingTimeInterval(-600))
+                    PRComment(id: "mock-5", author: "dana", body: "Ship it! 🚀", createdAt: Date().addingTimeInterval(-600))
                 ]
             ),
             PullRequest(
@@ -375,7 +435,7 @@ final class GitHubService: ObservableObject {
                 ciStatus: .failure, failedChecks: ["CI / lint"], reviewState: .pending,
                 hasConflicts: false,
                 recentComments: [
-                    PRComment(id: 6, author: "jordan", body: "Can you add a test for the rotation edge case?", createdAt: Date().addingTimeInterval(-5400))
+                    PRComment(id: "mock-6", author: "jordan", body: "Can you add a test for the rotation edge case?", createdAt: Date().addingTimeInterval(-5400))
                 ]
             ),
         ]

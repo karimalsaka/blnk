@@ -82,7 +82,7 @@ struct TokenInputView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
             }
-            .buttonStyle(AppPrimaryButtonStyle())
+            .buttonStyle(AppPrimaryButtonStrongStyle())
             .opacity(tokenInput.trimmingCharacters(in: .whitespaces).isEmpty || isValidating ? 0.6 : 1)
             .disabled(tokenInput.trimmingCharacters(in: .whitespaces).isEmpty || isValidating)
         }
