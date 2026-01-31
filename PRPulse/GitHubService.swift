@@ -58,7 +58,7 @@ final class GitHubService: ObservableObject {
         if pullRequests.contains(where: { $0.ciStatus == .failure || $0.hasConflicts || $0.reviewState == .changesRequested }) {
             return .failure
         }
-        if pullRequests.contains(where: { $0.ciStatus == .pending || $0.reviewState == .pending }) {
+        if pullRequests.contains(where: { $0.ciStatus == .pending }) {
             return .pending
         }
         if pullRequests.allSatisfy({ $0.ciStatus == .success && $0.reviewState == .approved }) {
@@ -278,7 +278,7 @@ final class GitHubService: ObservableObject {
                 } else if latestByUser.values.contains("APPROVED") {
                     reviewState = .approved
                 } else if !latestByUser.isEmpty {
-                    reviewState = .pending
+                    reviewState = .unknown
                 }
             }
 

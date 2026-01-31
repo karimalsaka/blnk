@@ -4,30 +4,30 @@ import AppKit
 #endif
 
 enum AppTheme {
-    // Soft, airy theme with dark mode support
+    // Minimal, light theme inspired by compact mobile lists
     static let accent = dynamic(
-        light: NSColor(calibratedRed: 0.55, green: 0.53, blue: 0.78, alpha: 1),
-        dark: NSColor(calibratedRed: 0.62, green: 0.60, blue: 0.84, alpha: 1)
+        light: NSColor(calibratedRed: 0.28, green: 0.34, blue: 0.82, alpha: 1),
+        dark: NSColor(calibratedRed: 0.48, green: 0.54, blue: 0.92, alpha: 1)
     )
     static let accentStrong = dynamic(
-        light: NSColor(calibratedRed: 0.40, green: 0.38, blue: 0.62, alpha: 1),
-        dark: NSColor(calibratedRed: 0.48, green: 0.46, blue: 0.70, alpha: 1)
+        light: NSColor(calibratedRed: 0.20, green: 0.26, blue: 0.72, alpha: 1),
+        dark: NSColor(calibratedRed: 0.36, green: 0.42, blue: 0.86, alpha: 1)
     )
     static let success = dynamic(
-        light: NSColor(calibratedRed: 0.42, green: 0.70, blue: 0.56, alpha: 1),
-        dark: NSColor(calibratedRed: 0.46, green: 0.74, blue: 0.60, alpha: 1)
+        light: NSColor(calibratedRed: 0.30, green: 0.68, blue: 0.44, alpha: 1),
+        dark: NSColor(calibratedRed: 0.38, green: 0.76, blue: 0.52, alpha: 1)
     )
     static let danger = dynamic(
-        light: NSColor(calibratedRed: 0.76, green: 0.46, blue: 0.52, alpha: 1),
-        dark: NSColor(calibratedRed: 0.80, green: 0.50, blue: 0.56, alpha: 1)
+        light: NSColor(calibratedRed: 0.84, green: 0.40, blue: 0.40, alpha: 1),
+        dark: NSColor(calibratedRed: 0.88, green: 0.46, blue: 0.46, alpha: 1)
     )
     static let warning = dynamic(
-        light: NSColor(calibratedRed: 0.78, green: 0.65, blue: 0.42, alpha: 1),
-        dark: NSColor(calibratedRed: 0.82, green: 0.70, blue: 0.48, alpha: 1)
+        light: NSColor(calibratedRed: 0.90, green: 0.68, blue: 0.24, alpha: 1),
+        dark: NSColor(calibratedRed: 0.94, green: 0.74, blue: 0.32, alpha: 1)
     )
     static let info = dynamic(
-        light: NSColor(calibratedRed: 0.50, green: 0.62, blue: 0.82, alpha: 1),
-        dark: NSColor(calibratedRed: 0.54, green: 0.66, blue: 0.86, alpha: 1)
+        light: NSColor(calibratedRed: 0.36, green: 0.52, blue: 0.86, alpha: 1),
+        dark: NSColor(calibratedRed: 0.46, green: 0.60, blue: 0.92, alpha: 1)
     )
 
     static let accentSoft = accent.opacity(0.14)
@@ -37,55 +37,39 @@ enum AppTheme {
     static let infoSoft = info.opacity(0.12)
 
     static let canvas = dynamic(
-        light: NSColor(calibratedWhite: 0.98, alpha: 1),
+        light: NSColor(calibratedWhite: 1.0, alpha: 1),
         dark: NSColor(calibratedWhite: 0.08, alpha: 1)
     )
     static let surface = dynamic(
-        light: NSColor(calibratedWhite: 0.97, alpha: 1),
+        light: NSColor(calibratedWhite: 0.98, alpha: 1),
         dark: NSColor(calibratedWhite: 0.12, alpha: 1)
     )
     static let elevatedSurface = dynamic(
-        light: NSColor(calibratedWhite: 0.96, alpha: 1),
+        light: NSColor(calibratedWhite: 0.99, alpha: 1),
         dark: NSColor(calibratedWhite: 0.1, alpha: 1)
     )
     static let stroke = dynamic(
-        light: NSColor(calibratedWhite: 0.0, alpha: 0.06),
+        light: NSColor(calibratedWhite: 0.0, alpha: 0.05),
         dark: NSColor(calibratedWhite: 1.0, alpha: 0.08)
     )
     static let strokeStrong = dynamic(
-        light: NSColor(calibratedWhite: 0.0, alpha: 0.12),
+        light: NSColor(calibratedWhite: 0.0, alpha: 0.10),
         dark: NSColor(calibratedWhite: 1.0, alpha: 0.16)
     )
     static let muted = dynamic(
-        light: NSColor(calibratedWhite: 0.0, alpha: 0.55),
+        light: NSColor(calibratedWhite: 0.0, alpha: 0.52),
         dark: NSColor(calibratedWhite: 1.0, alpha: 0.60)
     )
     static let hoverOverlay = dynamic(
-        light: NSColor(calibratedWhite: 0.0, alpha: 0.02),
+        light: NSColor(calibratedWhite: 0.0, alpha: 0.015),
         dark: NSColor(calibratedWhite: 1.0, alpha: 0.04)
     )
     static let cardShadow = dynamic(
-        light: NSColor(calibratedWhite: 0.0, alpha: 0.08),
+        light: NSColor(calibratedWhite: 0.0, alpha: 0.05),
         dark: NSColor(calibratedWhite: 0.0, alpha: 0.45)
     )
-
-    static let heroGradient = LinearGradient(
-        colors: [
-            dynamic(
-                light: NSColor(calibratedWhite: 0.98, alpha: 1),
-                dark: NSColor(calibratedWhite: 0.10, alpha: 1)
-            ),
-            dynamic(
-                light: NSColor(calibratedWhite: 0.95, alpha: 1),
-                dark: NSColor(calibratedWhite: 0.06, alpha: 1)
-            )
-        ],
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-    )
-
     static let badgeGradient = LinearGradient(
-        colors: [accent.opacity(0.95), accentStrong.opacity(0.9)],
+        colors: [accent.opacity(0.85), accentStrong.opacity(0.85)],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )
@@ -110,28 +94,8 @@ enum AppTheme {
 
 struct AppBackground: View {
     var body: some View {
-        ZStack {
-            AppTheme.heroGradient
-            RadialGradient(
-                colors: [
-                    AppTheme.accent.opacity(0.12),
-                    Color.clear
-                ],
-                center: .topTrailing,
-                startRadius: 30,
-                endRadius: 360
-            )
-            RadialGradient(
-                colors: [
-                    AppTheme.info.opacity(0.08),
-                    Color.clear
-                ],
-                center: .bottomLeading,
-                startRadius: 20,
-                endRadius: 380
-            )
-        }
-        .ignoresSafeArea()
+        AppTheme.canvas
+            .ignoresSafeArea()
     }
 }
 
@@ -145,13 +109,12 @@ struct AppCard<Content: View>: View {
     var body: some View {
         content
             .background(
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .fill(AppTheme.surface)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
                             .stroke(AppTheme.stroke, lineWidth: 1)
                     )
-                    .shadow(color: AppTheme.cardShadow, radius: 20, x: 0, y: 12)
             )
     }
 }
@@ -182,14 +145,13 @@ struct AppTag: View {
 struct AppPrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 13, weight: .semibold, design: .rounded))
+            .font(.system(size: 13, weight: .semibold))
             .foregroundColor(.white)
             .padding(.horizontal, 18)
             .padding(.vertical, 10)
             .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(AppTheme.badgeGradient)
-                    .shadow(color: AppTheme.accent.opacity(0.22), radius: 12, x: 0, y: 8)
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(AppTheme.accent)
             )
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
     }
@@ -198,12 +160,12 @@ struct AppPrimaryButtonStyle: ButtonStyle {
 struct AppPrimaryButtonStrongStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 13, weight: .semibold, design: .rounded))
+            .font(.system(size: 13, weight: .semibold))
             .foregroundColor(.white)
             .padding(.horizontal, 18)
             .padding(.vertical, 10)
             .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .fill(AppTheme.accentStrong)
             )
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
@@ -215,12 +177,12 @@ struct AppSoftButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 12, weight: .semibold, design: .rounded))
+            .font(.system(size: 12, weight: .semibold))
             .foregroundColor(tint)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .background(
-                RoundedRectangle(cornerRadius: 9, style: .continuous)
+                RoundedRectangle(cornerRadius: 7, style: .continuous)
                     .fill(tint.opacity(configuration.isPressed ? 0.18 : 0.12))
             )
     }
