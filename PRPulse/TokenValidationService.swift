@@ -52,7 +52,9 @@ final class TokenValidationService: ObservableObject {
         }
 
         var hasMinimumPermissions: Bool {
-            canReadPullRequests.status == .granted
+            canReadPullRequests.status == .granted &&
+            canReadReviews.status == .granted &&
+            canReadComments.status == .granted
         }
 
         var permissions: [PermissionCheck] {

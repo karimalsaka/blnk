@@ -26,6 +26,10 @@
 		A1000006 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2000006 /* Assets.xcassets */; };
 		A1000007 /* NotificationPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000010 /* NotificationPreferences.swift */; };
 		A1000008 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000011 /* NotificationManager.swift */; };
+		A1000009 /* CommentRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000012 /* CommentRow.swift */; };
+		A100000A /* PRRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000013 /* PRRowView.swift */; };
+		A100000B /* StatusPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000014 /* StatusPill.swift */; };
+		A100000C /* OnboardingPreviewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000015 /* OnboardingPreviewSection.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,6 +55,10 @@
 		A2000009 /* PRPulse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PRPulse.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2000010 /* NotificationPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPreferences.swift; sourceTree = "<group>"; };
 		A2000011 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		A2000012 /* CommentRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentRow.swift; sourceTree = "<group>"; };
+		A2000013 /* PRRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRRowView.swift; sourceTree = "<group>"; };
+		A2000014 /* StatusPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusPill.swift; sourceTree = "<group>"; };
+		A2000015 /* OnboardingPreviewSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPreviewSection.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +98,10 @@
 				A2000002 /* GitHubService.swift */,
 				A2000003 /* Models.swift */,
 				A2000004 /* PRListView.swift */,
+				A2000012 /* CommentRow.swift */,
+				A2000013 /* PRRowView.swift */,
+				A2000014 /* StatusPill.swift */,
+				A2000015 /* OnboardingPreviewSection.swift */,
 				A2000005 /* TokenManager.swift */,
 				A2000010 /* NotificationPreferences.swift */,
 				A2000011 /* NotificationManager.swift */,
@@ -192,6 +204,10 @@
 				99D0D21E2F296D1000BB6A81 /* SettingsView.swift in Sources */,
 				99D0D2202F296D1000BB6A81 /* SettingsViewModel.swift in Sources */,
 				A1000004 /* PRListView.swift in Sources */,
+				A1000009 /* CommentRow.swift in Sources */,
+				A100000A /* PRRowView.swift in Sources */,
+				A100000B /* StatusPill.swift in Sources */,
+				A100000C /* OnboardingPreviewSection.swift in Sources */,
 				A1000005 /* TokenManager.swift in Sources */,
 				A1000007 /* NotificationPreferences.swift in Sources */,
 				A1000008 /* NotificationManager.swift in Sources */,
