@@ -7,17 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		99D0D2142F296D1000BB6A81 /* TokenValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D2132F296D1000BB6A81 /* TokenValidationService.swift */; };
-		99D0D2152F296D1000BB6A81 /* OnboardingStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D20C2F296D1000BB6A81 /* OnboardingStepView.swift */; };
-		99D0D2162F296D1000BB6A81 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D20D2F296D1000BB6A81 /* OnboardingView.swift */; };
-		99D0D2172F296D1000BB6A81 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D20E2F296D1000BB6A81 /* OnboardingViewModel.swift */; };
-		99D0D2182F296D1000BB6A81 /* PermissionsBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D2102F296D1000BB6A81 /* PermissionsBannerView.swift */; };
-		99D0D2192F296D1000BB6A81 /* PermissionChecklistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D20F2F296D1000BB6A81 /* PermissionChecklistView.swift */; };
-		99D0D21A2F296D1000BB6A81 /* TokenInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D2122F296D1000BB6A81 /* TokenInputView.swift */; };
-		99D0D21B2F296D1000BB6A81 /* PermissionsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D2112F296D1000BB6A81 /* PermissionsState.swift */; };
-		99D0D21C2F296D1000BB6A81 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D21D2F296D1000BB6A81 /* DesignSystem.swift */; };
-		99D0D21E2F296D1000BB6A81 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D21F2F296D1000BB6A81 /* SettingsView.swift */; };
-		99D0D2202F296D1000BB6A81 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D2212F296D1000BB6A81 /* SettingsViewModel.swift */; };
+		99D0D2142F296D1000BB6A81 /* PRPulse/TokenValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D2132F296D1000BB6A81 /* PRPulse/TokenValidationService.swift */; };
+		99D0D2152F296D1000BB6A81 /* PRPulse/OnboardingStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D20C2F296D1000BB6A81 /* PRPulse/OnboardingStepView.swift */; };
+		99D0D2162F296D1000BB6A81 /* PRPulse/OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D20D2F296D1000BB6A81 /* PRPulse/OnboardingView.swift */; };
+		99D0D2172F296D1000BB6A81 /* PRPulse/OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D20E2F296D1000BB6A81 /* PRPulse/OnboardingViewModel.swift */; };
+		99D0D2182F296D1000BB6A81 /* PRPulse/PermissionsBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D2102F296D1000BB6A81 /* PRPulse/PermissionsBannerView.swift */; };
+		99D0D2192F296D1000BB6A81 /* PRPulse/PermissionChecklistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D20F2F296D1000BB6A81 /* PRPulse/PermissionChecklistView.swift */; };
+		99D0D21A2F296D1000BB6A81 /* PRPulse/TokenInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D2122F296D1000BB6A81 /* PRPulse/TokenInputView.swift */; };
+		99D0D21B2F296D1000BB6A81 /* PRPulse/PermissionsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D2112F296D1000BB6A81 /* PRPulse/PermissionsState.swift */; };
+		99D0D21C2F296D1000BB6A81 /* PRPulse/DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D21D2F296D1000BB6A81 /* PRPulse/DesignSystem.swift */; };
+		99D0D21E2F296D1000BB6A81 /* PRPulse/SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D21F2F296D1000BB6A81 /* PRPulse/SettingsView.swift */; };
+		99D0D2202F296D1000BB6A81 /* PRPulse/SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D2212F296D1000BB6A81 /* PRPulse/SettingsViewModel.swift */; };
 		A1000001 /* PRPulseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001 /* PRPulseApp.swift */; };
 		A1000002 /* GitHubService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002 /* GitHubService.swift */; };
 		A1000003 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003 /* Models.swift */; };
@@ -35,17 +35,17 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		99D0D20C2F296D1000BB6A81 /* OnboardingStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/OnboardingStepView.swift; sourceTree = "<group>"; };
-		99D0D20D2F296D1000BB6A81 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/OnboardingView.swift; sourceTree = "<group>"; };
-		99D0D20E2F296D1000BB6A81 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/OnboardingViewModel.swift; sourceTree = "<group>"; };
-		99D0D20F2F296D1000BB6A81 /* PermissionChecklistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/PermissionChecklistView.swift; sourceTree = "<group>"; };
-		99D0D2102F296D1000BB6A81 /* PermissionsBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/PermissionsBannerView.swift; sourceTree = "<group>"; };
-		99D0D2112F296D1000BB6A81 /* PermissionsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/PermissionsState.swift; sourceTree = "<group>"; };
-		99D0D2122F296D1000BB6A81 /* TokenInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/TokenInputView.swift; sourceTree = "<group>"; };
-		99D0D2132F296D1000BB6A81 /* TokenValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/TokenValidationService.swift; sourceTree = "<group>"; };
-		99D0D21D2F296D1000BB6A81 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/DesignSystem.swift; sourceTree = "<group>"; };
-		99D0D21F2F296D1000BB6A81 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/SettingsView.swift; sourceTree = "<group>"; };
-		99D0D2212F296D1000BB6A81 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/SettingsViewModel.swift; sourceTree = "<group>"; };
+		99D0D20C2F296D1000BB6A81 /* PRPulse/OnboardingStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/OnboardingStepView.swift; sourceTree = "<group>"; };
+		99D0D20D2F296D1000BB6A81 /* PRPulse/OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/OnboardingView.swift; sourceTree = "<group>"; };
+		99D0D20E2F296D1000BB6A81 /* PRPulse/OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/OnboardingViewModel.swift; sourceTree = "<group>"; };
+		99D0D20F2F296D1000BB6A81 /* PRPulse/PermissionChecklistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/PermissionChecklistView.swift; sourceTree = "<group>"; };
+		99D0D2102F296D1000BB6A81 /* PRPulse/PermissionsBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/PermissionsBannerView.swift; sourceTree = "<group>"; };
+		99D0D2112F296D1000BB6A81 /* PRPulse/PermissionsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/PermissionsState.swift; sourceTree = "<group>"; };
+		99D0D2122F296D1000BB6A81 /* PRPulse/TokenInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/TokenInputView.swift; sourceTree = "<group>"; };
+		99D0D2132F296D1000BB6A81 /* PRPulse/TokenValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/TokenValidationService.swift; sourceTree = "<group>"; };
+		99D0D21D2F296D1000BB6A81 /* PRPulse/DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/DesignSystem.swift; sourceTree = "<group>"; };
+		99D0D21F2F296D1000BB6A81 /* PRPulse/SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/SettingsView.swift; sourceTree = "<group>"; };
+		99D0D2212F296D1000BB6A81 /* PRPulse/SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/SettingsViewModel.swift; sourceTree = "<group>"; };
 		A2000001 /* PRPulseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulseApp.swift; sourceTree = "<group>"; };
 		A2000002 /* GitHubService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubService.swift; sourceTree = "<group>"; };
 		A2000003 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
@@ -79,17 +79,17 @@
 		A4000001 = {
 			isa = PBXGroup;
 			children = (
-				99D0D20C2F296D1000BB6A81 /* OnboardingStepView.swift */,
-				99D0D20D2F296D1000BB6A81 /* OnboardingView.swift */,
-				99D0D20E2F296D1000BB6A81 /* OnboardingViewModel.swift */,
-				99D0D20F2F296D1000BB6A81 /* PermissionChecklistView.swift */,
-				99D0D2102F296D1000BB6A81 /* PermissionsBannerView.swift */,
-				99D0D2112F296D1000BB6A81 /* PermissionsState.swift */,
-				99D0D2122F296D1000BB6A81 /* TokenInputView.swift */,
-				99D0D2132F296D1000BB6A81 /* TokenValidationService.swift */,
-				99D0D21D2F296D1000BB6A81 /* DesignSystem.swift */,
-				99D0D21F2F296D1000BB6A81 /* SettingsView.swift */,
-				99D0D2212F296D1000BB6A81 /* SettingsViewModel.swift */,
+				99D0D20C2F296D1000BB6A81 /* PRPulse/OnboardingStepView.swift */,
+				99D0D20D2F296D1000BB6A81 /* PRPulse/OnboardingView.swift */,
+				99D0D20E2F296D1000BB6A81 /* PRPulse/OnboardingViewModel.swift */,
+				99D0D20F2F296D1000BB6A81 /* PRPulse/PermissionChecklistView.swift */,
+				99D0D2102F296D1000BB6A81 /* PRPulse/PermissionsBannerView.swift */,
+				99D0D2112F296D1000BB6A81 /* PRPulse/PermissionsState.swift */,
+				99D0D2122F296D1000BB6A81 /* PRPulse/TokenInputView.swift */,
+				99D0D2132F296D1000BB6A81 /* PRPulse/TokenValidationService.swift */,
+				99D0D21D2F296D1000BB6A81 /* PRPulse/DesignSystem.swift */,
+				99D0D21F2F296D1000BB6A81 /* PRPulse/SettingsView.swift */,
+				99D0D2212F296D1000BB6A81 /* PRPulse/SettingsViewModel.swift */,
 				A4000002 /* PRPulse */,
 				A4000003 /* Products */,
 			);
@@ -198,17 +198,17 @@
 				A1000001 /* PRPulseApp.swift in Sources */,
 				A1000002 /* GitHubService.swift in Sources */,
 				A1000003 /* Models.swift in Sources */,
-				99D0D2142F296D1000BB6A81 /* TokenValidationService.swift in Sources */,
-				99D0D2152F296D1000BB6A81 /* OnboardingStepView.swift in Sources */,
-				99D0D2162F296D1000BB6A81 /* OnboardingView.swift in Sources */,
-				99D0D2172F296D1000BB6A81 /* OnboardingViewModel.swift in Sources */,
-				99D0D2182F296D1000BB6A81 /* PermissionsBannerView.swift in Sources */,
-				99D0D2192F296D1000BB6A81 /* PermissionChecklistView.swift in Sources */,
-				99D0D21A2F296D1000BB6A81 /* TokenInputView.swift in Sources */,
-				99D0D21B2F296D1000BB6A81 /* PermissionsState.swift in Sources */,
-				99D0D21C2F296D1000BB6A81 /* DesignSystem.swift in Sources */,
-				99D0D21E2F296D1000BB6A81 /* SettingsView.swift in Sources */,
-				99D0D2202F296D1000BB6A81 /* SettingsViewModel.swift in Sources */,
+				99D0D2142F296D1000BB6A81 /* PRPulse/TokenValidationService.swift in Sources */,
+				99D0D2152F296D1000BB6A81 /* PRPulse/OnboardingStepView.swift in Sources */,
+				99D0D2162F296D1000BB6A81 /* PRPulse/OnboardingView.swift in Sources */,
+				99D0D2172F296D1000BB6A81 /* PRPulse/OnboardingViewModel.swift in Sources */,
+				99D0D2182F296D1000BB6A81 /* PRPulse/PermissionsBannerView.swift in Sources */,
+				99D0D2192F296D1000BB6A81 /* PRPulse/PermissionChecklistView.swift in Sources */,
+				99D0D21A2F296D1000BB6A81 /* PRPulse/TokenInputView.swift in Sources */,
+				99D0D21B2F296D1000BB6A81 /* PRPulse/PermissionsState.swift in Sources */,
+				99D0D21C2F296D1000BB6A81 /* PRPulse/DesignSystem.swift in Sources */,
+				99D0D21E2F296D1000BB6A81 /* PRPulse/SettingsView.swift in Sources */,
+				99D0D2202F296D1000BB6A81 /* PRPulse/SettingsViewModel.swift in Sources */,
 				A1000004 /* PRListView.swift in Sources */,
 				A1000009 /* CommentRow.swift in Sources */,
 				A100000A /* PRRowView.swift in Sources */,
@@ -281,9 +281,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PRPulse/PRPulse.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = SYBQTBT5G7;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PRPulse/Info.plist;
 				INFOPLIST_KEY_LSUIElement = YES;
@@ -293,8 +295,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.prpulse.app;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.alsakasoftware.blnk;
+				PRODUCT_NAME = blnk;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -304,9 +306,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PRPulse/PRPulse.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = SYBQTBT5G7;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PRPulse/Info.plist;
 				INFOPLIST_KEY_LSUIElement = YES;
@@ -316,8 +320,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.prpulse.app;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.alsakasoftware.blnk;
+				PRODUCT_NAME = blnk;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
