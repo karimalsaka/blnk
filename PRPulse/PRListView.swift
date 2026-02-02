@@ -119,8 +119,8 @@ struct PRListView: View {
                                     pr: pr,
                                     permissionsState: service.permissionsState,
                                     currentUserLogin: service.currentUserLogin,
-                                    showComments: binding(for: pr.id).showComments,
-                                    showThreads: binding(for: pr.id).showThreads
+                                    showComments: commentBinding(for: pr.id),
+                                    showThreads: threadBinding(for: pr.id)
                                 )
                             }
                         }
@@ -157,16 +157,42 @@ struct PRListView: View {
         }
         .frame(width: 450, height: 670)
         .background(AppTheme.canvas)
+        .onChange(of: service.activeFilter) { _ in
+            rowExpansions = [:]
+        }
     }
 
     private func countFor(_ filter: PRFilter) -> Int {
         return service.count(for: filter)
     }
 
-    private func binding(for id: String) -> Binding<RowExpansion> {
-        Binding<RowExpansion>(
-            get: { rowExpansions[id] ?? RowExpansion() },
-            set: { rowExpansions[id] = $0 }
+    private func commentBinding(for id: String) -> Binding<Bool> {
+        Binding<Bool>(
+            get: { rowExpansions[id]?.showComments ?? false },
+            set: { newValue in
+                if newValue {
+                    rowExpansions = [id: RowExpansion(showComments: true, showThreads: false)]
+                } else {
+                    var updated = rowExpansions[id] ?? RowExpansion()
+                    updated.showComments = false
+                    rowExpansions[id] = updated
+                }
+            }
+        )
+    }
+
+    private func threadBinding(for id: String) -> Binding<Bool> {
+        Binding<Bool>(
+            get: { rowExpansions[id]?.showThreads ?? false },
+            set: { newValue in
+                if newValue {
+                    rowExpansions = [id: RowExpansion(showComments: false, showThreads: true)]
+                } else {
+                    var updated = rowExpansions[id] ?? RowExpansion()
+                    updated.showThreads = false
+                    rowExpansions[id] = updated
+                }
+            }
         )
     }
 }
@@ -174,22 +200,6 @@ struct PRListView: View {
 private struct RowExpansion: Equatable {
     var showComments = false
     var showThreads = false
-}
-
-private extension Binding where Value == RowExpansion {
-    var showComments: Binding<Bool> {
-        Binding<Bool>(
-            get: { wrappedValue.showComments },
-            set: { wrappedValue.showComments = $0 }
-        )
-    }
-
-    var showThreads: Binding<Bool> {
-        Binding<Bool>(
-            get: { wrappedValue.showThreads },
-            set: { wrappedValue.showThreads = $0 }
-        )
-    }
 }
 
 struct FilterPill: View {

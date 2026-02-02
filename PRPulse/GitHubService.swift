@@ -18,6 +18,9 @@ final class GitHubService: ObservableObject {
     func pullRequests(for filter: PRFilter) -> [PullRequest] {
         switch filter {
         case .all: return pullRequests
+        case .myPRs:
+            guard let login = currentUserLogin?.lowercased() else { return [] }
+            return pullRequests.filter { $0.authorLogin?.lowercased() == login }
         case .needsAttention: return pullRequests.filter { $0.ciStatus == .failure || $0.hasConflicts || $0.reviewState == .changesRequested }
         case .reviewRequested: return pullRequests.filter { $0.isRequestedReviewer }
         case .approved: return pullRequests.filter { $0.reviewState == .approved }
@@ -126,6 +129,9 @@ final class GitHubService: ObservableObject {
                 url
                 isDraft
                 updatedAt
+                author {
+                  login
+                }
                 mergeable
                 repository {
                   nameWithOwner
@@ -205,6 +211,9 @@ final class GitHubService: ObservableObject {
                 url
                 isDraft
                 updatedAt
+                author {
+                  login
+                }
                 mergeable
                 repository {
                   nameWithOwner
@@ -325,6 +334,7 @@ final class GitHubService: ObservableObject {
         let isDraft = node["isDraft"] as? Bool ?? false
         let updatedAtStr = node["updatedAt"] as? String ?? ""
         let updatedAt = parseDate(updatedAtStr) ?? Date()
+        let authorLogin = (node["author"] as? [String: Any])?["login"] as? String
         let mergeableStr = node["mergeable"] as? String ?? "UNKNOWN"
         let hasConflicts = mergeableStr == "CONFLICTING"
 
@@ -492,6 +502,7 @@ final class GitHubService: ObservableObject {
             number: number,
             title: title,
             repoFullName: repoFullName,
+            authorLogin: authorLogin,
             htmlURL: url,
             headSHA: "",
             updatedAt: updatedAt,
@@ -550,7 +561,7 @@ final class GitHubService: ObservableObject {
     private static let mockPullRequests: [PullRequest] = [
             PullRequest(
             id: "acme/frontend#142", number: 142, title: "feat: Add dark mode support across all components",
-                repoFullName: "acme/frontend", htmlURL: URL(string: "https://github.com")!,
+                repoFullName: "acme/frontend", authorLogin: "sarah", htmlURL: URL(string: "https://github.com")!,
                 headSHA: "abc123", updatedAt: Date().addingTimeInterval(-3600), commentCount: 3, isDraft: false,
                 ciStatus: .success, failedChecks: [], reviewState: .approved,
                 hasConflicts: false,
@@ -561,7 +572,7 @@ final class GitHubService: ObservableObject {
             ),
             PullRequest(
                 id: "acme/backend-api#87", number: 87, title: "fix: Resolve memory leak in WebSocket connection handler",
-                repoFullName: "acme/backend-api", htmlURL: URL(string: "https://github.com")!,
+                repoFullName: "acme/backend-api", authorLogin: "alex", htmlURL: URL(string: "https://github.com")!,
                 headSHA: "def456", updatedAt: Date().addingTimeInterval(-7200), commentCount: 5, isDraft: false,
                 ciStatus: .failure, failedChecks: ["Build / test-linux", "CI / integration-tests"], reviewState: .changesRequested,
                 hasConflicts: true,
@@ -587,14 +598,14 @@ final class GitHubService: ObservableObject {
             ),
             PullRequest(
                 id: "acme/infrastructure#201", number: 201, title: "chore: Bump dependencies and fix security advisories",
-                repoFullName: "acme/infrastructure", htmlURL: URL(string: "https://github.com")!,
+                repoFullName: "acme/infrastructure", authorLogin: "dana", htmlURL: URL(string: "https://github.com")!,
                 headSHA: "ghi789", updatedAt: Date().addingTimeInterval(-10800), commentCount: 0, isDraft: false,
                 ciStatus: .pending, failedChecks: [], reviewState: .pending,
                 hasConflicts: false, recentComments: []
             ),
             PullRequest(
                 id: "acme/frontend#55", number: 55, title: "WIP: Experiment with new caching strategy for GraphQL queries",
-                repoFullName: "acme/frontend", htmlURL: URL(string: "https://github.com")!,
+                repoFullName: "acme/frontend", authorLogin: "karim", htmlURL: URL(string: "https://github.com")!,
                 headSHA: "jkl012", updatedAt: Date().addingTimeInterval(-86400), commentCount: 1, isDraft: true,
                 ciStatus: .unknown, failedChecks: [], reviewState: .unknown,
                 hasConflicts: false,
@@ -604,7 +615,7 @@ final class GitHubService: ObservableObject {
             ),
             PullRequest(
                 id: "acme/auth-service#33", number: 33, title: "feat: Add OAuth2 PKCE flow for mobile clients",
-                repoFullName: "acme/auth-service", htmlURL: URL(string: "https://github.com")!,
+                repoFullName: "acme/auth-service", authorLogin: "karim", htmlURL: URL(string: "https://github.com")!,
                 headSHA: "mno345", updatedAt: Date().addingTimeInterval(-600), commentCount: 8, isDraft: false,
                 ciStatus: .success, failedChecks: [], reviewState: .approved,
                 hasConflicts: false,
@@ -614,7 +625,7 @@ final class GitHubService: ObservableObject {
             ),
             PullRequest(
                 id: "acme/backend-api#12", number: 12, title: "fix: Rate limiter bypassed when API key rotates mid-request",
-                repoFullName: "acme/backend-api", htmlURL: URL(string: "https://github.com")!,
+                repoFullName: "acme/backend-api", authorLogin: "jordan", htmlURL: URL(string: "https://github.com")!,
                 headSHA: "pqr678", updatedAt: Date().addingTimeInterval(-5400), commentCount: 2, isDraft: false,
                 ciStatus: .failure, failedChecks: ["CI / lint"], reviewState: .pending,
                 hasConflicts: false,

@@ -4,6 +4,7 @@ import Foundation
 
 enum PRFilter: String, CaseIterable, Identifiable {
     case all = "All PRs"
+    case myPRs = "My PRs"
     case needsAttention = "Needs Attention"
     case reviewRequested = "Review Requested"
     case approved = "Approved"
@@ -14,6 +15,7 @@ enum PRFilter: String, CaseIterable, Identifiable {
     var icon: String {
         switch self {
         case .all: return "list.bullet"
+        case .myPRs: return "person.crop.circle.fill"
         case .needsAttention: return "exclamationmark.circle.fill"
         case .reviewRequested: return "person.crop.circle.badge.checkmark"
         case .approved: return "checkmark.seal.fill"
@@ -82,6 +84,7 @@ struct PullRequest: Identifiable, Equatable {
     let number: Int
     let title: String
     let repoFullName: String
+    let authorLogin: String?
     let htmlURL: URL
     let headSHA: String
     let updatedAt: Date
