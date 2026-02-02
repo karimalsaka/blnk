@@ -311,10 +311,6 @@ final class GitHubService: ObservableObject {
             }
         }
 
-        for pr in results {
-            print("Mergeable status: \(pr.repoFullName)#\(pr.number) • mergeable=\(pr.hasConflicts ? "CONFLICTING" : "NOT_CONFLICTING")")
-        }
-
         return (pullRequests: results, viewerLogin: viewerLogin)
     }
 
