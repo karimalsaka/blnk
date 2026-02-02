@@ -290,3 +290,12 @@ struct HealthSummaryView: View {
         .padding(.horizontal)
 
 }
+
+#Preview("PR List - Review Requested") {
+    let service = GitHubService.preview()
+    service.activeFilter = .reviewRequested
+    return PRListView(service: service, showingTokenSheet: .constant(false))
+        .preferredColorScheme(.dark)
+        .frame(width: 420, height: 720)
+        .padding(.horizontal)
+}

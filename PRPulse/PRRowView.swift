@@ -22,6 +22,11 @@ struct PRRowView: View {
     private var discussionComments: [PRComment] {
         (pr.recentComments + singleThreadComments).sorted(by: { $0.createdAt < $1.createdAt })
     }
+    private var authorLabel: String? {
+        guard let author = pr.authorLogin, !author.isEmpty else { return nil }
+        guard let current = currentUserLogin?.lowercased(), !current.isEmpty else { return author }
+        return author.lowercased() == current ? nil : author
+    }
 
     init(
         pr: PullRequest,
@@ -76,6 +81,26 @@ struct PRRowView: View {
                                         .stroke(AppTheme.stroke, lineWidth: 1)
                                 )
                         )
+
+                        if let authorLabel {
+                            HStack(spacing: 4) {
+                                Image(systemName: "person.fill")
+                                    .font(.system(size: 9, weight: .semibold))
+                                Text(authorLabel)
+                                    .font(.system(size: 10, weight: .semibold))
+                            }
+                            .foregroundColor(AppTheme.accent)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 3)
+                            .background(
+                                Capsule(style: .continuous)
+                                    .fill(AppTheme.canvas)
+                                    .overlay(
+                                        Capsule(style: .continuous)
+                                            .stroke(AppTheme.stroke, lineWidth: 1)
+                                    )
+                            )
+                        }
 
                         if pr.isDraft {
                             Text("DRAFT")

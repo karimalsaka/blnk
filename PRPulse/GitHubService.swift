@@ -568,7 +568,8 @@ final class GitHubService: ObservableObject {
                 recentComments: [
                     PRComment(id: "mock-1", author: "sarah", body: "LGTM! Nice work on the color tokens.", createdAt: Date().addingTimeInterval(-3600), url: URL(string: "https://github.com")),
                     PRComment(id: "mock-2", author: "mike", body: "Approved — tested on Safari and Chrome.", createdAt: Date().addingTimeInterval(-1800), url: URL(string: "https://github.com"))
-                ]
+                ],
+                isRequestedReviewer: true
             ),
             PullRequest(
                 id: "acme/backend-api#87", number: 87, title: "fix: Resolve memory leak in WebSocket connection handler",
