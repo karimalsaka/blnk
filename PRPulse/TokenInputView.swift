@@ -98,11 +98,11 @@ struct TokenInputView: View {
                 .frame(width: 16)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("Your token is stored securely")
+                Text("Stored in keychain")
                     .font(.caption)
                     .fontWeight(.medium)
 
-                Text("blnk stores your token locally and never sends it to any third-party servers. It's only used to communicate directly with GitHub's API.")
+                Text("blnk keeps your token in keychain and never sends it to any third-party servers. It's only used to communicate directly with GitHub's API.")
                     .font(.caption2)
                     .foregroundColor(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
