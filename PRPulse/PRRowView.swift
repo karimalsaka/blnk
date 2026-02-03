@@ -10,6 +10,7 @@ struct PRRowView: View {
     @State private var isHovered = false
     @State private var isDiscussionHovered = false
     @State private var isInlineHovered = false
+    @State private var isCommentHovered = false
     private var displayCommentCount: Int { pr.allComments.count }
     private var singleThreadComments: [PRComment] {
         pr.reviewThreads
@@ -46,7 +47,7 @@ struct PRRowView: View {
 
     var body: some View {
         let cornerRadius: CGFloat = 12
-        let cardHoverActive = isHovered && !isDiscussionHovered && !isInlineHovered
+        let cardHoverActive = isHovered && !isDiscussionHovered && !isInlineHovered && !isCommentHovered
         ZStack(alignment: .leading) {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .fill(AppTheme.surface)
@@ -255,6 +256,11 @@ struct PRRowView: View {
                                                 )
                                             }
                                         }
+                                        .onHover { hovering in
+                                            withAnimation(.easeInOut(duration: 0.2)) {
+                                                isCommentHovered = hovering
+                                            }
+                                        }
                                     .transition(.opacity.combined(with: .scale(scale: 0.98, anchor: .top)))
                                 }
                             }
@@ -320,6 +326,11 @@ struct PRRowView: View {
                                             threadView(thread)
                                         }
                                     }
+                                    .onHover { hovering in
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            isCommentHovered = hovering
+                                        }
+                                    }
                                     .transition(.opacity.combined(with: .scale(scale: 0.98, anchor: .top)))
                                 }
                             }
@@ -364,6 +375,9 @@ struct PRRowView: View {
         case .success:
             return "CI • Passing"
         case .failure:
+            if pr.failedChecks.isEmpty {
+                return "CI • Failed"
+            }
             return "CI • \(pr.failedChecks.count) failed"
         case .pending:
             return "CI • Running"

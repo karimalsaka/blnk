@@ -29,7 +29,7 @@ struct OnboardingView: View {
                     .padding(20)
             }
         }
-        .frame(width: 840, height: 980)
+        .frame(width: 840, height: 760)
         .background(AppTheme.canvas)
         .animation(.easeInOut(duration: 0.35), value: viewModel.currentStep)
         .alert("Error", isPresented: $viewModel.showError) {

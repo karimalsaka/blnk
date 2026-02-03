@@ -21,8 +21,14 @@ final class GitHubService: ObservableObject {
         case .myPRs:
             guard let login = currentUserLogin?.lowercased() else { return [] }
             return pullRequests.filter { $0.authorLogin?.lowercased() == login }
-        case .needsAttention: return pullRequests.filter { $0.ciStatus == .failure || $0.hasConflicts || $0.reviewState == .changesRequested }
-        case .reviewRequested: return pullRequests.filter { $0.isRequestedReviewer }
+        case .needsAttention:
+            guard let login = currentUserLogin?.lowercased() else { return [] }
+            return pullRequests.filter { pr in
+                guard pr.authorLogin?.lowercased() == login else { return false }
+                return needsAttention(pr)
+            }
+        case .reviewRequested:
+            return pullRequests.filter { $0.isRequestedReviewer && !$0.isReviewedByMe }
         case .approved: return pullRequests.filter { $0.reviewState == .approved }
         case .drafts: return pullRequests.filter { $0.isDraft }
         }
@@ -142,7 +148,7 @@ final class GitHubService: ObservableObject {
                     commit {
                       statusCheckRollup {
                         state
-                        contexts(first: 30) {
+                        contexts(first: 100) {
                           nodes {
                             ... on CheckRun {
                               __typename
@@ -224,7 +230,7 @@ final class GitHubService: ObservableObject {
                     commit {
                       statusCheckRollup {
                         state
-                        contexts(first: 30) {
+                        contexts(first: 100) {
                           nodes {
                             ... on CheckRun {
                               __typename
@@ -298,7 +304,7 @@ final class GitHubService: ObservableObject {
         var seenKeys = Set<String>()
 
         for node in nodes {
-            if let pullRequest = parsePullRequestNode(node, isRequestedReviewer: false) {
+            if let pullRequest = parsePullRequestNode(node, isRequestedReviewer: false, viewerLogin: viewerLogin) {
                 let key = "\(pullRequest.repoFullName)#\(pullRequest.number)"
                 if !seenKeys.contains(key) {
                     seenKeys.insert(key)
@@ -310,7 +316,7 @@ final class GitHubService: ObservableObject {
         if let reviewRequests = dataObj["reviewRequests"] as? [String: Any],
            let reviewNodes = reviewRequests["nodes"] as? [[String: Any]] {
             for node in reviewNodes {
-                if let pullRequest = parsePullRequestNode(node, isRequestedReviewer: true) {
+                if let pullRequest = parsePullRequestNode(node, isRequestedReviewer: true, viewerLogin: viewerLogin) {
                     let key = "\(pullRequest.repoFullName)#\(pullRequest.number)"
                     if !seenKeys.contains(key) {
                         seenKeys.insert(key)
@@ -323,7 +329,7 @@ final class GitHubService: ObservableObject {
         return (pullRequests: results, viewerLogin: viewerLogin)
     }
 
-    private func parsePullRequestNode(_ node: [String: Any], isRequestedReviewer: Bool) -> PullRequest? {
+    private func parsePullRequestNode(_ node: [String: Any], isRequestedReviewer: Bool, viewerLogin: String?) -> PullRequest? {
         guard let number = node["number"] as? Int,
               let title = node["title"] as? String,
               let urlStr = node["url"] as? String,
@@ -340,12 +346,13 @@ final class GitHubService: ObservableObject {
 
         // Parse CI status
         var ciStatus: CIStatus = .unknown
-        var failedChecks: [String] = []
+        var failedChecks = Set<String>()
         if let commits = node["commits"] as? [String: Any],
            let commitNodes = commits["nodes"] as? [[String: Any]],
            let lastCommit = commitNodes.last,
            let commit = lastCommit["commit"] as? [String: Any],
            let rollup = commit["statusCheckRollup"] as? [String: Any] {
+            logStatusRollup(rollup, repoFullName: repoFullName, number: number)
 
             let state = rollup["state"] as? String ?? "UNKNOWN"
             switch state {
@@ -356,23 +363,30 @@ final class GitHubService: ObservableObject {
             }
 
             // Get failed check names
-            if ciStatus == .failure,
-               let contexts = rollup["contexts"] as? [String: Any],
+            if let contexts = rollup["contexts"] as? [String: Any],
                let ctxNodes = contexts["nodes"] as? [[String: Any]] {
                 for ctx in ctxNodes {
                     let typeName = ctx["__typename"] as? String ?? ""
                     if typeName == "CheckRun" {
-                        let conclusion = ctx["conclusion"] as? String ?? ""
-                        if conclusion == "FAILURE" || conclusion == "TIMED_OUT" || conclusion == "CANCELLED" {
+                        let conclusion = (ctx["conclusion"] as? String ?? "").uppercased()
+                        let failingConclusions: Set<String> = [
+                            "FAILURE",
+                            "TIMED_OUT",
+                            "CANCELLED",
+                            "ACTION_REQUIRED",
+                            "STARTUP_FAILURE",
+                            "STALE"
+                        ]
+                        if failingConclusions.contains(conclusion) {
                             if let name = ctx["name"] as? String {
-                                failedChecks.append(name)
+                                failedChecks.insert(name)
                             }
                         }
                     } else if typeName == "StatusContext" {
-                        let ctxState = ctx["state"] as? String ?? ""
+                        let ctxState = (ctx["state"] as? String ?? "").uppercased()
                         if ctxState == "FAILURE" || ctxState == "ERROR" {
                             if let context = ctx["context"] as? String {
-                                failedChecks.append(context)
+                                failedChecks.insert(context)
                             }
                         }
                     }
@@ -382,11 +396,19 @@ final class GitHubService: ObservableObject {
 
         // Parse review state
         var reviewState: ReviewState = .unknown
+        var isReviewedByMe = false
+        let viewerLoginLower = viewerLogin?.lowercased()
         if let reviews = node["reviews"] as? [String: Any],
            let reviewNodes = reviews["nodes"] as? [[String: Any]] {
             var latestByUser: [String: String] = [:]
             for review in reviewNodes {
                 let state = review["state"] as? String ?? ""
+                if let author = review["author"] as? [String: Any],
+                   let login = author["login"] as? String {
+                    if let viewerLoginLower, login.lowercased() == viewerLoginLower {
+                        isReviewedByMe = true
+                    }
+                }
                 if state == "COMMENTED" { continue }
                 if let author = review["author"] as? [String: Any],
                    let login = author["login"] as? String {
@@ -509,14 +531,31 @@ final class GitHubService: ObservableObject {
             commentCount: commentCount,
             isDraft: isDraft,
             ciStatus: ciStatus,
-            failedChecks: failedChecks,
+            failedChecks: Array(failedChecks).sorted(),
             reviewState: reviewState,
             hasConflicts: hasConflicts,
             recentReviews: recentReviews,
             recentComments: recentComments,
             reviewThreads: reviewThreadModels,
-            isRequestedReviewer: isRequestedReviewer
+            isRequestedReviewer: isRequestedReviewer,
+            isReviewedByMe: isReviewedByMe
         )
+    }
+
+    private func logStatusRollup(_ rollup: [String: Any], repoFullName: String, number: Int) {
+#if DEBUG
+        if let data = try? JSONSerialization.data(withJSONObject: rollup, options: [.prettyPrinted, .sortedKeys]),
+           let json = String(data: data, encoding: .utf8) {
+            print("CI rollup for \(repoFullName)#\(number):\n\(json)")
+        } else {
+            print("CI rollup for \(repoFullName)#\(number): \(rollup)")
+        }
+#endif
+    }
+
+    private func needsAttention(_ pr: PullRequest) -> Bool {
+        guard !pr.isDraft else { return false }
+        return pr.ciStatus == .failure || pr.hasConflicts || pr.reviewState == .changesRequested
     }
 
     private func performGraphQLRequest(token: String, query: String) async throws -> [String: Any] {

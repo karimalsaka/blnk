@@ -5,6 +5,8 @@ struct CommentRow: View {
     let isSelf: Bool
     let showReply: Bool
     let replyURL: URL?
+    @State private var isExpanded = false
+    @State private var isHovered = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
@@ -29,10 +31,24 @@ struct CommentRow: View {
                         .font(.caption2)
                         .foregroundColor(.secondary)
                 }
-                Text(comment.preview)
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-                    .lineLimit(3)
+                commentText
+
+                if shouldShowMore {
+                    HStack {
+                        Spacer()
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isExpanded.toggle()
+                            }
+                        } label: {
+                            Text(isExpanded ? "Show less" : "Show more")
+                                .font(.caption2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(AppTheme.accent)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
 
                 if showReply, let replyURL {
                     HStack {
@@ -62,12 +78,53 @@ struct CommentRow: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .background(AppTheme.surface)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(AppTheme.surface)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(AppTheme.hoverOverlay.opacity(isHovered ? 1 : 0))
+                )
+        )
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(AppTheme.stroke, lineWidth: 1)
+                .stroke(isHovered ? AppTheme.strokeStrong : AppTheme.stroke, lineWidth: 1)
         )
+        .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isHovered = hovering
+            }
+            if hovering {
+                NSCursor.pointingHand.set()
+            } else {
+                NSCursor.arrow.set()
+            }
+        }
+        .onTapGesture {
+            // Consume tap so the parent card doesn't open the PR.
+            if shouldShowMore {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isExpanded.toggle()
+                }
+            }
+        }
+    }
+
+    private var commentText: some View {
+        Text(isExpanded ? fullText : comment.preview)
+            .font(.caption2)
+            .foregroundColor(.secondary)
+            .lineLimit(isExpanded ? nil : 3)
+    }
+
+    private var fullText: String {
+        comment.body.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var shouldShowMore: Bool {
+        !fullText.isEmpty && fullText != comment.preview
     }
 }
 
