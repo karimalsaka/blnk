@@ -3,22 +3,20 @@ import Foundation
 // MARK: - Filters
 
 enum PRFilter: String, CaseIterable, Identifiable {
-    case all = "All PRs"
-    case myPRs = "My PRs"
-    case needsAttention = "Needs Attention"
-    case reviewRequested = "Review Requested"
-    case approved = "Approved"
+    case inbox = "Inbox"
+    case review = "To Review"
+    case discussed = "Discussed"
+    case mine = "Mine"
     case drafts = "Drafts"
 
     var id: String { rawValue }
 
     var icon: String {
         switch self {
-        case .all: return "list.bullet"
-        case .myPRs: return "person.crop.circle.fill"
-        case .needsAttention: return "exclamationmark.circle.fill"
-        case .reviewRequested: return "person.crop.circle.badge.checkmark"
-        case .approved: return "checkmark.seal.fill"
+        case .inbox: return "tray.full.fill"
+        case .review: return "eye.circle.fill"
+        case .discussed: return "bubble.left.and.bubble.right.fill"
+        case .mine: return "person.crop.circle.fill"
         case .drafts: return "doc.fill"
         }
     }
@@ -100,6 +98,7 @@ struct PullRequest: Identifiable, Equatable {
     var reviewThreads: [PRCommentThread] = []
     var isRequestedReviewer: Bool = false
     var isReviewedByMe: Bool = false
+    var hasMyComment: Bool = false
 
     var repoName: String {
         repoFullName.components(separatedBy: "/").last ?? repoFullName
@@ -273,6 +272,7 @@ struct GitHubGraphQLError: Decodable {
 
 struct GitHubGraphQLPullRequestsResponse: Decodable {
     let viewer: GitHubGraphQLViewerResponse?
+    let involved: GitHubGraphQLSearchResponse?
     let reviewRequests: GitHubGraphQLSearchResponse?
 }
 

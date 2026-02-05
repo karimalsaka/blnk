@@ -6,7 +6,7 @@ final class GitHubService: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var lastUpdated: Date?
-    @Published var activeFilter: PRFilter = .all
+    @Published var activeFilter: PRFilter = .inbox
     @Published var useMockData = false
     @Published var permissionsState = PermissionsState()
     @Published var currentUserLogin: String?
@@ -15,22 +15,42 @@ final class GitHubService: ObservableObject {
         return pullRequests(for: activeFilter)
     }
 
+    var attentionCount: Int {
+        guard let viewerLoginLower = currentUserLogin?.lowercased(), !viewerLoginLower.isEmpty else { return 0 }
+        return pullRequests.filter { pr in
+            isMine(pr, viewerLoginLower: viewerLoginLower) && needsAttention(pr)
+        }.count
+    }
+
     func pullRequests(for filter: PRFilter) -> [PullRequest] {
+        let viewerLoginLower = currentUserLogin?.lowercased()
         switch filter {
-        case .all: return pullRequests
-        case .myPRs:
-            guard let login = currentUserLogin?.lowercased() else { return [] }
-            return pullRequests.filter { $0.authorLogin?.lowercased() == login }
-        case .needsAttention:
-            guard let login = currentUserLogin?.lowercased() else { return [] }
+        case .inbox:
             return pullRequests.filter { pr in
-                guard pr.authorLogin?.lowercased() == login else { return false }
-                return needsAttention(pr)
+                let toReview = pr.isRequestedReviewer && !pr.isReviewedByMe
+                guard let viewerLoginLower else { return toReview }
+                let mineNeedsAttention = isMine(pr, viewerLoginLower: viewerLoginLower) && needsAttention(pr)
+                return toReview || mineNeedsAttention
             }
-        case .reviewRequested:
+        case .review:
             return pullRequests.filter { $0.isRequestedReviewer && !$0.isReviewedByMe }
-        case .approved: return pullRequests.filter { $0.reviewState == .approved }
-        case .drafts: return pullRequests.filter { $0.isDraft }
+        case .discussed:
+            guard let viewerLoginLower, !viewerLoginLower.isEmpty else { return [] }
+            return pullRequests.filter { pr in
+                let toReview = pr.isRequestedReviewer && !pr.isReviewedByMe
+                if toReview { return false }
+                return pr.isReviewedByMe || pr.hasMyComment
+            }
+        case .mine:
+            guard let viewerLoginLower, !viewerLoginLower.isEmpty else { return [] }
+            return pullRequests.filter { pr in
+                isMine(pr, viewerLoginLower: viewerLoginLower) && !pr.isDraft
+            }
+        case .drafts:
+            guard let viewerLoginLower, !viewerLoginLower.isEmpty else { return [] }
+            return pullRequests.filter { pr in
+                isMine(pr, viewerLoginLower: viewerLoginLower) && pr.isDraft
+            }
         }
     }
 
@@ -127,8 +147,10 @@ final class GitHubService: ObservableObject {
         {
           viewer {
             login
-            pullRequests(first: 50, states: OPEN, orderBy: {field: UPDATED_AT, direction: DESC}) {
-              nodes {
+          }
+          involved: search(query: "is:pr is:open involves:@me sort:updated-desc", type: ISSUE, first: 50) {
+            nodes {
+              ... on PullRequest {
                 id
                 number
                 title
@@ -208,7 +230,7 @@ final class GitHubService: ObservableObject {
               }
             }
           }
-          reviewRequests: search(query: "is:pr is:open review-requested:@me", type: ISSUE, first: 50) {
+          reviewRequests: search(query: "is:pr is:open review-requested:@me sort:updated-desc", type: ISSUE, first: 50) {
             nodes {
               ... on PullRequest {
                 id
@@ -294,37 +316,37 @@ final class GitHubService: ObservableObject {
         """
 
         let dataObj = try await performGraphQLRequest(token: token, query: query)
-        guard let viewer = dataObj.viewer,
-              let pullRequests = viewer.pullRequests,
-              let nodes = pullRequests.nodes else {
+        guard let viewer = dataObj.viewer else {
             throw NSError(domain: "GitHub", code: 0, userInfo: [NSLocalizedDescriptionKey: "Unexpected GraphQL response"])
         }
         let viewerLogin = viewer.login
-        var results: [PullRequest] = []
-        var seenKeys = Set<String>()
+        var byKey: [String: PullRequest] = [:]
 
-        for node in nodes.compactMap({ $0 }) {
-            if let pullRequest = parsePullRequestNode(node, isRequestedReviewer: false, viewerLogin: viewerLogin) {
-                let key = "\(pullRequest.repoFullName)#\(pullRequest.number)"
-                if !seenKeys.contains(key) {
-                    seenKeys.insert(key)
-                    results.append(pullRequest)
+        if let involvedNodes = dataObj.involved?.nodes {
+            for node in involvedNodes.compactMap({ $0 }) {
+                if let pullRequest = parsePullRequestNode(node, isRequestedReviewer: false, viewerLogin: viewerLogin) {
+                    byKey["\(pullRequest.repoFullName)#\(pullRequest.number)"] = pullRequest
                 }
             }
         }
 
         if let reviewNodes = dataObj.reviewRequests?.nodes {
             for node in reviewNodes.compactMap({ $0 }) {
-                if let pullRequest = parsePullRequestNode(node, isRequestedReviewer: true, viewerLogin: viewerLogin) {
+                if var pullRequest = parsePullRequestNode(node, isRequestedReviewer: true, viewerLogin: viewerLogin) {
                     let key = "\(pullRequest.repoFullName)#\(pullRequest.number)"
-                    if !seenKeys.contains(key) {
-                        seenKeys.insert(key)
-                        results.append(pullRequest)
+                    if var existing = byKey[key] {
+                        existing.isRequestedReviewer = true
+                        byKey[key] = existing
+                    } else {
+                        pullRequest.isRequestedReviewer = true
+                        byKey[key] = pullRequest
                     }
                 }
             }
         }
 
+        var results = Array(byKey.values)
+        results.sort { $0.updatedAt > $1.updatedAt }
         return (pullRequests: results, viewerLogin: viewerLogin)
     }
 
@@ -389,18 +411,23 @@ final class GitHubService: ObservableObject {
             }
         }
 
-        // Parse review state
+        // Parse review state + your activity
         var reviewState: ReviewState = .unknown
         var isReviewedByMe = false
         let viewerLoginLower = viewerLogin?.lowercased()
+        var hasMyCommentFromReview = false
         if let reviewNodes = node.reviews?.nodes?.compactMap({ $0 }) {
             var latestByUser: [String: String] = [:]
             for review in reviewNodes {
-                let state = review.state ?? ""
+                let state = (review.state ?? "").uppercased()
                 if let login = review.author?.login,
                    let viewerLoginLower,
                    login.lowercased() == viewerLoginLower {
-                    isReviewedByMe = true
+                    if state == "COMMENTED" {
+                        hasMyCommentFromReview = true
+                    } else if state == "APPROVED" || state == "CHANGES_REQUESTED" {
+                        isReviewedByMe = true
+                    }
                 }
                 if state == "COMMENTED" { continue }
                 if let login = review.author?.login {
@@ -504,6 +531,19 @@ final class GitHubService: ObservableObject {
         }
         recentReviews.sort { $0.createdAt > $1.createdAt }
 
+        var hasMyComment = false
+        if let viewerLoginLower, !viewerLoginLower.isEmpty {
+            if recentComments.contains(where: { $0.author.lowercased() == viewerLoginLower }) {
+                hasMyComment = true
+            } else if reviewThreadModels.contains(where: { thread in
+                thread.comments.contains(where: { $0.author.lowercased() == viewerLoginLower })
+            }) {
+                hasMyComment = true
+            } else if hasMyCommentFromReview {
+                hasMyComment = true
+            }
+        }
+
         let stableId = node.id ?? "\(repoFullName)#\(number)"
         return PullRequest(
             id: stableId,
@@ -524,13 +564,18 @@ final class GitHubService: ObservableObject {
             recentComments: recentComments,
             reviewThreads: reviewThreadModels,
             isRequestedReviewer: isRequestedReviewer,
-            isReviewedByMe: isReviewedByMe
+            isReviewedByMe: isReviewedByMe,
+            hasMyComment: hasMyComment
         )
     }
 
     private func needsAttention(_ pr: PullRequest) -> Bool {
         guard !pr.isDraft else { return false }
         return pr.ciStatus == .failure || pr.hasConflicts || pr.reviewState == .changesRequested
+    }
+
+    private func isMine(_ pr: PullRequest, viewerLoginLower: String) -> Bool {
+        pr.authorLogin?.lowercased() == viewerLoginLower
     }
 
     private func performGraphQLRequest(token: String, query: String) async throws -> GitHubGraphQLPullRequestsResponse {

@@ -28,9 +28,7 @@ struct PRListView: View {
                     Button(action: { service.fetch() }) {
                         HStack(spacing: 6) {
                             if service.isLoading {
-                                ProgressView()
-                                    .controlSize(.small)
-                                    .tint(AppTheme.accent)
+                                AppInlineSpinner(tint: AppTheme.accent, size: 13, lineWidth: 2)
                             } else {
                                 Image(systemName: "arrow.clockwise")
                                     .font(.system(size: 11, weight: .semibold))
@@ -85,15 +83,16 @@ struct PRListView: View {
 
                 VStack(spacing: 0) {
                     if service.filteredPullRequests.isEmpty && !service.isLoading && service.errorMessage == nil {
+                        let isInbox = service.activeFilter == .inbox
                         VStack(spacing: 0) {
                             AppCard {
                                 VStack(spacing: 10) {
-                                    Image(systemName: service.activeFilter == .all ? "checkmark.circle" : "line.3.horizontal.decrease.circle")
+                                    Image(systemName: isInbox ? "checkmark.circle" : "line.3.horizontal.decrease.circle")
                                         .font(.system(size: 36))
-                                        .foregroundColor(service.activeFilter == .all ? AppTheme.success : .secondary)
-                                    Text(service.activeFilter == .all ? "All clear!" : "No matches")
+                                        .foregroundColor(isInbox ? AppTheme.success : .secondary)
+                                    Text(isInbox ? "All caught up" : "No matches")
                                         .font(.system(size: 14, weight: .semibold, design: .rounded))
-                                    Text(service.activeFilter == .all ? "No open pull requests" : "No PRs match this filter")
+                                    Text(isInbox ? "Nothing needs your attention" : "No PRs match this filter")
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                 }
@@ -115,6 +114,7 @@ struct PRListView: View {
                                         pr: pr,
                                         permissionsState: service.permissionsState,
                                         currentUserLogin: service.currentUserLogin,
+                                        activeFilter: service.activeFilter,
                                         showComments: commentBinding(for: pr.id),
                                         showThreads: threadBinding(for: pr.id)
                                     )
@@ -166,7 +166,7 @@ struct PRListView: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.top, 10)
-                    .padding(.bottom, 12)
+                    .padding(.bottom, 18)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
@@ -265,27 +265,27 @@ struct FilterPill: View {
 struct HealthSummaryView: View {
     @ObservedObject var service: GitHubService
 
-    private var needsAttentionCount: Int { service.count(for: .needsAttention) }
-    private var reviewRequestedCount: Int { service.count(for: .reviewRequested) }
+    private var attentionCount: Int { service.attentionCount }
+    private var toReviewCount: Int { service.count(for: .review) }
     private var pendingCount: Int { service.pullRequests.filter { $0.ciStatus == .pending || $0.reviewState == .pending }.count }
 
     private var summaryColor: Color {
-        if needsAttentionCount > 0 { return AppTheme.danger }
-        if reviewRequestedCount > 0 { return AppTheme.warning }
+        if toReviewCount > 0 { return AppTheme.warning }
+        if attentionCount > 0 { return AppTheme.danger }
         if pendingCount > 0 { return AppTheme.info }
         return AppTheme.success
     }
 
     private var summaryIcon: String {
-        if needsAttentionCount > 0 { return "exclamationmark.circle.fill" }
-        if reviewRequestedCount > 0 { return "eye.circle.fill" }
+        if toReviewCount > 0 { return "eye.circle.fill" }
+        if attentionCount > 0 { return "exclamationmark.circle.fill" }
         if pendingCount > 0 { return "clock.circle.fill" }
         return "checkmark.circle.fill"
     }
 
     private var summaryText: String {
-        if needsAttentionCount > 0 { return attentionLabel(count: needsAttentionCount) }
-        if reviewRequestedCount > 0 { return "\(reviewRequestedCount) to review" }
+        if toReviewCount > 0 { return "\(toReviewCount) to review" }
+        if attentionCount > 0 { return attentionLabel(count: attentionCount) }
         if pendingCount > 0 { return "\(pendingCount) pending" }
         return "All good"
     }
@@ -326,12 +326,12 @@ struct PRListView_Previews: PreviewProvider {
             PRListView(
                 service: {
                     let service = GitHubService.preview()
-                    service.activeFilter = .reviewRequested
+                    service.activeFilter = .review
                     return service
                 }(),
                 showingTokenSheet: .constant(false)
             )
-            .previewDisplayName("PR List - Review Requested")
+            .previewDisplayName("PR List - To Review")
         }
         .preferredColorScheme(.dark)
         .frame(width: 420, height: 720)

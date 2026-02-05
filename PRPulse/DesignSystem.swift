@@ -257,6 +257,45 @@ struct AppToolbarButtonStyle: ButtonStyle {
     }
 }
 
+struct AppInlineSpinner: View {
+    let tint: Color
+    let size: CGFloat
+    let lineWidth: CGFloat
+    @State private var rotationDegrees: Double = 0
+
+    init(tint: Color = AppTheme.accent, size: CGFloat = 12, lineWidth: CGFloat = 2) {
+        self.tint = tint
+        self.size = size
+        self.lineWidth = lineWidth
+    }
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(AppTheme.stroke.opacity(0.9), lineWidth: lineWidth)
+
+            Circle()
+                .trim(from: 0, to: 0.28)
+                .stroke(
+                    AngularGradient(
+                        gradient: Gradient(colors: [tint.opacity(0.10), tint.opacity(0.95)]),
+                        center: .center
+                    ),
+                    style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+                )
+                .rotationEffect(.degrees(rotationDegrees))
+        }
+        .frame(width: size, height: size)
+        .onAppear {
+            rotationDegrees = 0
+            withAnimation(.linear(duration: 0.9).repeatForever(autoreverses: false)) {
+                rotationDegrees = 360
+            }
+        }
+        .accessibilityLabel("Loading")
+    }
+}
+
 struct AppDivider: View {
     var body: some View {
         Rectangle()

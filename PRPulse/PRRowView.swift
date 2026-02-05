@@ -4,6 +4,7 @@ struct PRRowView: View {
     let pr: PullRequest
     let permissionsState: PermissionsState
     let currentUserLogin: String?
+    let activeFilter: PRFilter
     let isInteractive: Bool
     @Binding var showComments: Bool
     @Binding var showThreads: Bool
@@ -23,16 +24,17 @@ struct PRRowView: View {
     private var discussionComments: [PRComment] {
         (pr.recentComments + singleThreadComments).sorted(by: { $0.createdAt < $1.createdAt })
     }
-    private var authorLabel: String? {
+    private var authorPillText: String? {
         guard let author = pr.authorLogin, !author.isEmpty else { return nil }
         guard let current = currentUserLogin?.lowercased(), !current.isEmpty else { return author }
-        return author.lowercased() == current ? nil : author
+        return author.lowercased() == current ? "mine" : author
     }
 
     init(
         pr: PullRequest,
         permissionsState: PermissionsState,
         currentUserLogin: String?,
+        activeFilter: PRFilter = .inbox,
         showComments: Binding<Bool> = .constant(false),
         showThreads: Binding<Bool> = .constant(false),
         isInteractive: Bool = true
@@ -40,6 +42,7 @@ struct PRRowView: View {
         self.pr = pr
         self.permissionsState = permissionsState
         self.currentUserLogin = currentUserLogin
+        self.activeFilter = activeFilter
         self._showComments = showComments
         self._showThreads = showThreads
         self.isInteractive = isInteractive
@@ -83,11 +86,11 @@ struct PRRowView: View {
                                 )
                         )
 
-                        if let authorLabel {
+                        if let authorPillText {
                             HStack(spacing: 4) {
                                 Image(systemName: "person.fill")
                                     .font(.system(size: 9, weight: .semibold))
-                                Text(authorLabel)
+                                Text(authorPillText)
                                     .font(.system(size: 10, weight: .semibold))
                             }
                             .foregroundColor(AppTheme.accent)
@@ -114,20 +117,6 @@ struct PRRowView: View {
                         }
 
                         Spacer()
-
-                        if pr.hasConflicts {
-                            HStack(spacing: 3) {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .font(.system(size: 9))
-                                Text("Conflicts")
-                                    .font(.system(size: 9, weight: .semibold))
-                            }
-                            .foregroundColor(AppTheme.danger)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(AppTheme.dangerSoft)
-                            .cornerRadius(999)
-                        }
                     }
 
                     Text(pr.title)
@@ -161,6 +150,18 @@ struct PRRowView: View {
                                     .fontWeight(.medium)
                             }
                             .foregroundColor(.secondary)
+                        }
+                    }
+
+                    let tags = reasonTags()
+                    if !tags.isEmpty {
+                        HStack(spacing: 6) {
+                            ForEach(tags.prefix(2)) { tag in
+                                AppTag(text: tag.text, icon: tag.icon, tint: tag.tint)
+                            }
+                            if tags.count > 2 {
+                                AppTag(text: "+\(tags.count - 2)", icon: nil, tint: .secondary)
+                            }
                         }
                     }
 
@@ -398,6 +399,74 @@ struct PRRowView: View {
     private func isSelfComment(_ comment: PRComment) -> Bool {
         guard let login = currentUserLogin?.lowercased(), !login.isEmpty else { return false }
         return comment.author.lowercased() == login
+    }
+
+    private struct ReasonTag: Identifiable {
+        let id: String
+        let text: String
+        let icon: String?
+        let tint: Color
+    }
+
+    private func reasonTags() -> [ReasonTag] {
+        func tag(_ text: String, _ icon: String?, _ tint: Color) -> ReasonTag {
+            ReasonTag(id: text, text: text, icon: icon, tint: tint)
+        }
+
+        let details: [ReasonTag] = [
+            pr.hasConflicts ? tag("Conflicts", "exclamationmark.triangle.fill", AppTheme.danger) : nil,
+            (permissionsState.canReadCommitStatuses && pr.ciStatus == .failure) ? tag("CI failure", "xmark.circle.fill", AppTheme.danger) : nil,
+            (permissionsState.canReadReviews && pr.reviewState == .changesRequested) ? tag("Changes requested", "exclamationmark.triangle.fill", AppTheme.warning) : nil
+        ].compactMap { $0 }
+
+        let isToReview = pr.isRequestedReviewer && !pr.isReviewedByMe
+        let reviewTag = tag("Needs your review", "eye.circle.fill", AppTheme.warning)
+
+        func tagsForReview(details: [ReasonTag]) -> [ReasonTag] {
+            var tags = details
+            if pr.hasConflicts {
+                tags.insert(reviewTag, at: min(1, tags.count))
+            } else {
+                tags.insert(reviewTag, at: 0)
+            }
+            return tags
+        }
+
+        switch activeFilter {
+        case .inbox:
+            if isToReview {
+                return tagsForReview(details: details)
+            }
+            if !details.isEmpty {
+                return details
+            }
+            return [tag("Needs attention", "exclamationmark.circle.fill", AppTheme.danger)]
+
+        case .review:
+            return tagsForReview(details: details)
+
+        case .discussed:
+            var tags: [ReasonTag] = []
+            if pr.isReviewedByMe {
+                tags.append(tag("You reviewed", "checkmark.seal.fill", AppTheme.success))
+            }
+            if hasMyCommentActivity() {
+                tags.append(tag("You commented", "bubble.left.and.bubble.right.fill", AppTheme.accent))
+            }
+            return tags
+
+        case .mine:
+            return []
+
+        case .drafts:
+            return [tag("Draft", "doc.fill", .secondary)]
+        }
+    }
+
+    private func hasMyCommentActivity() -> Bool {
+        guard let loginLower = currentUserLogin?.lowercased(), !loginLower.isEmpty else { return false }
+        if pr.hasMyComment { return true }
+        return pr.allComments.contains { $0.author.lowercased() == loginLower }
     }
 
     private func threadView(_ thread: PRCommentThread) -> some View {

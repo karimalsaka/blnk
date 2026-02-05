@@ -130,7 +130,7 @@ struct OnboardingView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     OnboardingBulletItem(text: "Spot reviews that need your attention fast")
                     OnboardingBulletItem(text: "Track build checks without opening GitHub")
-                    OnboardingBulletItem(text: "Filter by attention, approved, or drafts")
+                    OnboardingBulletItem(text: "Use Inbox, To Review, and Drafts filters")
                 }
                 .padding(.leading, 4)
 
@@ -488,6 +488,7 @@ extension OnboardingView {
                         pr: pullRequest,
                         permissionsState: demoPermissionsState,
                         currentUserLogin: demoCurrentUser,
+                        activeFilter: .inbox,
                         isInteractive: false
                     )
                 }
