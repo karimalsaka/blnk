@@ -534,7 +534,7 @@ extension OnboardingView {
                     number: 922,
                     isDraft: false,
                     ciStatus: .failure,
-                    failedChecks: ["CI / snapshot-tests"],
+                    failedChecks: [],
                     reviewState: .changesRequested,
                     recentComments: [
                         demoComment(id: "d3", author: "lee", body: "Seeing failures on iOS 17 again.", minutesAgo: 60)
