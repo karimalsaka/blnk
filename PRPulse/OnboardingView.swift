@@ -4,6 +4,8 @@ struct OnboardingView: View {
     @StateObject private var viewModel = OnboardingViewModel()
     @Namespace private var stepNamespace
     @State private var demoFilter: DemoFilter = .needsReview
+    @State private var demoRowExpansions: [String: DemoRowExpansion] = [:]
+    @State private var appeared = false
     let onComplete: () -> Void
 
     init(onComplete: @escaping () -> Void = {}) {
@@ -15,22 +17,29 @@ struct OnboardingView: View {
             OnboardingBackground()
 
             VStack(spacing: 0) {
-                VStack(spacing: 16) {
-                    stepHeader
-                    stepContent
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                }
-                .padding(.horizontal, 24)
-                .padding(.top, 24)
+                stepHeader
+                    .padding(.top, 40)
+                    .padding(.bottom, 16)
 
-                AppDivider()
+                stepContent
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.horizontal, 56)
 
                 navigationFooter
-                    .padding(20)
+                    .padding(.horizontal, 56)
+                    .padding(.top, 16)
+                    .padding(.bottom, 32)
             }
         }
-        .frame(width: 840, height: 760)
-        .animation(.easeInOut(duration: 0.35), value: viewModel.currentStep)
+        .frame(width: 680, height: 640)
+        .opacity(appeared ? 1 : 0)
+        .offset(y: appeared ? 0 : 8)
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.5)) {
+                appeared = true
+            }
+        }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.currentStep)
         .alert("Error", isPresented: $viewModel.showError) {
             Button("OK", role: .cancel) {}
         } message: {
@@ -46,39 +55,31 @@ struct OnboardingView: View {
             switch viewModel.currentStep {
             case .welcome:
                 welcomeStep
-                    .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
-                                            removal: .move(edge: .leading).combined(with: .opacity)))
+                    .transition(.opacity.animation(.easeInOut(duration: 0.2)))
             case .instructions:
                 instructionsStep
-                    .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
-                                            removal: .move(edge: .leading).combined(with: .opacity)))
+                    .transition(.opacity.animation(.easeInOut(duration: 0.2)))
             case .tokenInput:
                 tokenInputStep
-                    .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
-                                            removal: .move(edge: .leading).combined(with: .opacity)))
+                    .transition(.opacity.animation(.easeInOut(duration: 0.2)))
             case .validation:
                 validationStep
-                    .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
-                                            removal: .move(edge: .leading).combined(with: .opacity)))
+                    .transition(.opacity.animation(.easeInOut(duration: 0.2)))
             }
         }
         .scrollIndicators(.hidden)
     }
 
     private var stepHeader: some View {
-        HStack {
-            Spacer()
-            HStack(spacing: 8) {
-                ForEach(steps.indices, id: \.self) { index in
-                    RoundedRectangle(cornerRadius: 999, style: .continuous)
-                        .fill(index <= currentStepIndex ? AppTheme.accent : AppTheme.stroke.opacity(0.9))
-                        .frame(width: index == currentStepIndex ? 64 : 36, height: 6)
-                        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: currentStepIndex)
-                }
+        HStack(spacing: 6) {
+            ForEach(steps.indices, id: \.self) { index in
+                Circle()
+                    .fill(index == currentStepIndex ? AppTheme.textPrimary : AppTheme.stroke)
+                    .frame(width: 6, height: 6)
+                    .scaleEffect(index == currentStepIndex ? 1.0 : 0.85)
+                    .animation(.easeOut(duration: 0.2), value: currentStepIndex)
             }
-            Spacer()
         }
-        .padding(.vertical, 10)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Step \(currentStepIndex + 1) of \(steps.count)")
     }
@@ -95,29 +96,20 @@ struct OnboardingView: View {
 
     private var welcomeStep: some View {
         OnboardingStepView(
-            title: "Welcome to blnk",
-            subtitle: "Monitor your GitHub pull requests from your menu bar",
+            title: "blnk",
+            subtitle: "Your pull requests, always visible",
             heroImageName: "ghost-image-onboarding",
             heroAccessibilityLabel: "blnk"
         ) {
-            VStack(alignment: .leading, spacing: 16) {
-                VStack(alignment: .leading, spacing: 12) {
-                    OnboardingBulletItem(text: "Spot reviews that need your attention fast")
-                    OnboardingBulletItem(text: "Track build checks without opening GitHub")
-                    OnboardingBulletItem(text: "Use Inbox, To Review, and Drafts filters")
+            VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 14) {
+                    OnboardingBulletItem(text: "See reviews that need your attention")
+                    OnboardingBulletItem(text: "Track CI status without context switching")
+                    OnboardingBulletItem(text: "Filter by Inbox, To Review, and Drafts")
                 }
-                .padding(.leading, 4)
-                .padding(.bottom, 25)
 
-                OnboardingPreviewSection(
-                    title: "Your PR workspace",
-                    subtitle: "A quick peek at the live list you’ll get"
-                ) {
-                    previewCard
-                }
-                .frame(width: AppLayout.menuPopoverWidth)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.bottom, 12)
+                previewCard
+                    .frame(maxWidth: .infinity, alignment: .center)
             }
         }
     }
@@ -127,92 +119,88 @@ struct OnboardingView: View {
     private var instructionsStep: some View {
         OnboardingStepView(
             title: "Connect GitHub",
-            subtitle: "Create a Personal Access Token and paste it next"
+            subtitle: "Create a Personal Access Token"
         ) {
-            VStack(alignment: .leading, spacing: 16) {
-                permissionsInline
+            VStack(alignment: .leading, spacing: 20) {
                 fineGrainedPATInstructions
                 classicPATInstructions
+                permissionsInline
             }
         }
     }
 
     private var permissionsInline: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Image(systemName: "lock.shield.fill")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(AppTheme.accent)
-                Text("Permissions required to use blnk")
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                    .foregroundColor(AppTheme.textPrimary)
-                Spacer()
-            }
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Required permissions")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.secondary)
 
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(spacing: 8) {
-                    AppTag(text: "Required", icon: nil, tint: AppTheme.accent)
-                    Text("Pull requests, Reviews, Comments (read-only)")
-                        .font(.caption)
+            HStack(spacing: 16) {
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(AppTheme.accent)
+                        .frame(width: 5, height: 5)
+                    Text("Pull requests")
+                        .font(.system(size: 12))
                         .foregroundColor(.secondary)
                 }
-
-                HStack(spacing: 8) {
-                    AppTag(text: "Optional", icon: nil, tint: .secondary)
-                    Text("Commit statuses (read-only)")
-                        .font(.caption)
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(AppTheme.accent)
+                        .frame(width: 5, height: 5)
+                    Text("Commit statuses")
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+                }
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(AppTheme.accent)
+                        .frame(width: 5, height: 5)
+                    Text("Contents")
+                        .font(.system(size: 12))
                         .foregroundColor(.secondary)
                 }
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(AppTheme.accentSoft.opacity(0.5))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .stroke(AppTheme.stroke, lineWidth: 1)
-                )
-        )
+        .padding(.top, 4)
     }
 
     private var classicPATInstructions: some View {
         OnboardingInstructionCard(
-            title: "Classic (quickest)",
-            subtitle: "Broad scope, one checkbox",
+            title: "Classic token",
+            subtitle: "Quickest setup",
             action: viewModel.openGitHubTokenSettings
         ) {
-            VStack(alignment: .leading, spacing: 8) {
-                InstructionStepView(number: 1, text: "Open Tokens (classic) in GitHub settings")
-                InstructionStepView(number: 2, text: "Generate a token named 'blnk' with the repo scope")
-                InstructionStepView(number: 3, text: "Generate and copy it (you won't see it again)")
+            VStack(alignment: .leading, spacing: 6) {
+                InstructionStepView(number: 1, text: "Open Tokens (classic) in GitHub")
+                InstructionStepView(number: 2, text: "Create token with repo scope")
+                InstructionStepView(number: 3, text: "Copy the token")
             }
         }
     }
 
     private var fineGrainedPATInstructions: some View {
         OnboardingInstructionCard(
-            title: "Fine-grained (recommended)",
-            subtitle: "Scoped access with repo selection",
+            title: "Fine-grained token",
+            subtitle: "More control over permissions",
             tagText: "Recommended",
             tagTint: AppTheme.success,
             action: viewModel.openGitHubFineGrainedTokenSettings
         ) {
-            VStack(alignment: .leading, spacing: 8) {
-                InstructionStepView(number: 1, text: "Open Fine-grained tokens in GitHub settings")
-                InstructionStepView(number: 2, text: "Generate a token named 'blnk' and choose repos")
-                InstructionStepView(number: 3, text: "Set these permissions:")
+            VStack(alignment: .leading, spacing: 6) {
+                InstructionStepView(number: 1, text: "Open Fine-grained tokens in GitHub")
+                InstructionStepView(number: 2, text: "Create token and select repositories")
+                InstructionStepView(number: 3, text: "Set permissions to Read-only:")
 
                 VStack(alignment: .leading, spacing: 4) {
-                    PermissionInstructionView(name: "Pull requests", access: "Read-only")
-                    PermissionInstructionView(name: "Commit statuses", access: "Read-only")
-                    PermissionInstructionView(name: "Contents", access: "Read-only")
-                    PermissionInstructionView(name: "Metadata", access: "Read-only (auto)")
+                    PermissionRow(name: "Pull requests")
+                    PermissionRow(name: "Commit statuses")
+                    PermissionRow(name: "Contents")
+                    PermissionRow(name: "Metadata", note: "auto-enabled")
                 }
                 .padding(.leading, 24)
 
-                InstructionStepView(number: 4, text: "Generate and copy the token")
+                InstructionStepView(number: 4, text: "Copy the token")
             }
         }
     }
@@ -221,20 +209,14 @@ struct OnboardingView: View {
 
     private var tokenInputStep: some View {
         OnboardingStepView(
-            title: "Enter Your Token",
-            subtitle: "Paste your token to start tracking"
+            title: "Paste token",
+            subtitle: "We'll verify permissions before saving"
         ) {
-            VStack(spacing: 24) {
-                TokenInputView(
-                    tokenInput: $viewModel.tokenInput,
-                    isValidating: viewModel.isValidating,
-                    onValidate: viewModel.validateToken
-                )
-
-                Text("We validate permissions before saving anything.")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
+            TokenInputView(
+                tokenInput: $viewModel.tokenInput,
+                isValidating: viewModel.isValidating,
+                onValidate: viewModel.validateToken
+            )
         }
     }
 
@@ -242,11 +224,11 @@ struct OnboardingView: View {
 
     private var validationStep: some View {
         OnboardingStepView(
-            title: "Token Validation",
-            subtitle: "Checking permissions and wrapping up"
+            title: "Validating",
+            subtitle: "Checking your token permissions"
         ) {
             if let result = viewModel.validationResult {
-                VStack(spacing: 24) {
+                VStack(spacing: 20) {
                     if result.allPermissionsGranted {
                         completionBanner
                     }
@@ -257,48 +239,41 @@ struct OnboardingView: View {
                     }
                 }
             } else {
-                ProgressView("Validating token...")
+                HStack(spacing: 12) {
+                    ProgressView()
+                        .controlSize(.small)
+                    Text("Checking permissions...")
+                        .font(.system(size: 13))
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.vertical, 32)
             }
         }
     }
 
     private var limitedFunctionalityExplanation: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 10) {
-                RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .fill(AppTheme.warningSoft)
-                    .frame(width: 28, height: 28)
-                    .overlay(
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(AppTheme.warning)
-                    )
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("You’re still set")
-                        .font(.headline)
-                    Text("Some details will be hidden until permissions are added.")
-                        .font(.caption)
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "exclamationmark.circle")
+                .font(.system(size: 14))
+                .foregroundColor(AppTheme.warning)
+                .frame(width: 20)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Limited functionality")
+                    .font(.system(size: 13, weight: .medium))
+                if viewModel.validationResult?.canReadCommitStatuses.status != .granted {
+                    Text("CI/CD status won't be visible without commit status permission.")
+                        .font(.system(size: 12))
                         .foregroundColor(.secondary)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-            if viewModel.validationResult?.canReadCommitStatuses.status != .granted {
-                FeatureLimitationView(
-                    feature: "CI/CD Status",
-                    description: "You won't see build and test results"
-                )
-            }
         }
-        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
         .background(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(AppTheme.elevatedSurface)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .stroke(AppTheme.stroke, lineWidth: 1)
-                )
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(AppTheme.warningSoft.opacity(0.5))
         )
     }
 
@@ -383,29 +358,6 @@ struct OnboardingView: View {
 private struct OnboardingBackground: View {
     var body: some View {
         AppTheme.canvas
-            .overlay(
-                LinearGradient(
-                    colors: [
-                        Color.black.opacity(0.40),
-                        Color.black.opacity(0.10),
-                        Color.black.opacity(0.45)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
-            .overlay(
-                RadialGradient(
-                    colors: [
-                        AppTheme.accentSoft.opacity(0.40),
-                        Color.clear
-                    ],
-                    center: .topLeading,
-                    startRadius: 40,
-                    endRadius: 560
-                )
-                .opacity(0.35)
-            )
             .ignoresSafeArea()
     }
 }
@@ -436,63 +388,65 @@ private enum DemoFilter: String, CaseIterable, Identifiable {
     }
 }
 
+private struct DemoRowExpansion: Equatable {
+    var showComments = false
+    var showThreads = false
+}
+
 extension OnboardingView {
     private var previewCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 4) {
                 ForEach(DemoFilter.allCases) { filter in
                     demoFilterPill(for: filter)
                 }
+                Spacer()
             }
 
-            VStack(spacing: 10) {
+            VStack(spacing: 6) {
                 ForEach(demoPullRequests) { pullRequest in
                     PRRowView(
                         pr: pullRequest,
                         permissionsState: demoPermissionsState,
                         currentUserLogin: demoCurrentUser,
                         activeFilter: .inbox,
+                        showComments: demoCommentBinding(for: pullRequest.id),
+                        showThreads: demoThreadBinding(for: pullRequest.id),
                         isInteractive: false
                     )
                 }
             }
         }
-        .padding(16)
+        .padding(12)
+        .frame(width: AppLayout.menuPopoverWidth)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(AppTheme.surface)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(AppTheme.stroke, lineWidth: 1)
+                )
+        )
+        .onChange(of: demoFilter) { _ in
+            demoRowExpansions = [:]
+        }
     }
 
     private func demoFilterPill(for filter: DemoFilter) -> some View {
         Button {
-            demoFilter = filter
-        } label: {
-            HStack(spacing: 6) {
-                Text(filter.title)
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(demoFilter == filter ? .primary : .secondary)
-                Text("\(demoCount(for: filter))")
-                    .font(.system(size: 9, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundColor(demoFilter == filter ? AppTheme.accent : .secondary)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(
-                        RoundedRectangle(cornerRadius: 6, style: .continuous)
-                            .fill(demoFilter == filter ? AppTheme.accentSoft : AppTheme.elevatedSurface)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                    .stroke(demoFilter == filter ? AppTheme.accent.opacity(0.24) : AppTheme.stroke, lineWidth: 1)
-                            )
-                    )
+            withAnimation(.easeOut(duration: 0.15)) {
+                demoFilter = filter
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 7)
-            .background(
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(demoFilter == filter ? AppTheme.surface : AppTheme.canvas)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .stroke(demoFilter == filter ? AppTheme.accent.opacity(0.4) : AppTheme.stroke, lineWidth: 1)
-                    )
-            )
+        } label: {
+            Text(filter.title)
+                .font(.system(size: 11, weight: demoFilter == filter ? .semibold : .regular))
+                .foregroundColor(demoFilter == filter ? AppTheme.textPrimary : .secondary)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .fill(demoFilter == filter ? AppTheme.elevatedSurface : Color.clear)
+                )
         }
         .buttonStyle(.plain)
     }
@@ -730,24 +684,54 @@ extension OnboardingView {
         PRCommentThread(id: id, comments: comments)
     }
 
+    private func demoCommentBinding(for id: String) -> Binding<Bool> {
+        Binding<Bool>(
+            get: { demoRowExpansions[id]?.showComments ?? false },
+            set: { newValue in
+                if newValue {
+                    demoRowExpansions = [id: DemoRowExpansion(showComments: true, showThreads: false)]
+                } else {
+                    var updated = demoRowExpansions[id] ?? DemoRowExpansion()
+                    updated.showComments = false
+                    demoRowExpansions[id] = updated
+                }
+            }
+        )
+    }
+
+    private func demoThreadBinding(for id: String) -> Binding<Bool> {
+        Binding<Bool>(
+            get: { demoRowExpansions[id]?.showThreads ?? false },
+            set: { newValue in
+                if newValue {
+                    demoRowExpansions = [id: DemoRowExpansion(showComments: false, showThreads: true)]
+                } else {
+                    var updated = demoRowExpansions[id] ?? DemoRowExpansion()
+                    updated.showThreads = false
+                    demoRowExpansions[id] = updated
+                }
+            }
+        )
+    }
+
     private var completionBanner: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "checkmark.seal.fill")
+        HStack(spacing: 10) {
+            Image(systemName: "checkmark.circle.fill")
                 .foregroundColor(AppTheme.success)
-                .font(.system(size: 20, weight: .semibold))
-            VStack(alignment: .leading, spacing: 4) {
-                Text("You're set")
-                    .font(.headline)
-                Text("First sync starts now and updates every few minutes.")
-                    .font(.caption)
+                .font(.system(size: 16))
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Ready to go")
+                    .font(.system(size: 13, weight: .medium))
+                Text("Your PRs will sync automatically.")
+                    .font(.system(size: 12))
                     .foregroundColor(.secondary)
             }
             Spacer()
         }
-        .padding(14)
+        .padding(12)
         .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(AppTheme.successSoft)
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(AppTheme.successSoft.opacity(0.6))
         )
     }
 }
@@ -759,70 +743,38 @@ struct InstructionStepView: View {
     let text: String
 
     var body: some View {
-        HStack(alignment: .center, spacing: 10) {
-            Text("\(number)")
-                .font(.system(size: 11, weight: .semibold, design: .rounded))
-                .foregroundColor(AppTheme.accent)
-                .frame(width: 24, height: 24, alignment: .center)
-                .background(
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .fill(AppTheme.accentSoft)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .stroke(AppTheme.stroke, lineWidth: 1)
-                        )
-                )
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Text("\(number).")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.tertiary)
+                .frame(width: 16, alignment: .trailing)
 
             Text(text)
-                .font(.system(size: 13, weight: .regular, design: .rounded))
+                .font(.system(size: 12))
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
 }
 
-struct PermissionInstructionView: View {
+struct PermissionRow: View {
     let name: String
-    let access: String
+    var note: String? = nil
 
     var body: some View {
-        HStack {
-            Text("•")
-                .foregroundColor(AppTheme.accent)
+        HStack(spacing: 6) {
+            Circle()
+                .fill(AppTheme.accent)
+                .frame(width: 4, height: 4)
             Text(name)
-                .font(.caption)
+                .font(.system(size: 11))
                 .foregroundColor(.secondary)
-            Text("→")
-                .font(.caption2)
-                .foregroundColor(.secondary)
-            Text(access)
-                .font(.caption)
-                .fontWeight(.medium)
-                .foregroundColor(AppTheme.accent)
-        }
-    }
-}
-
-struct FeatureLimitationView: View {
-    let feature: String
-    let description: String
-
-    var body: some View {
-        HStack(alignment: .top, spacing: 8) {
-            RoundedRectangle(cornerRadius: 2, style: .continuous)
-                .fill(AppTheme.warning)
-                .frame(width: 10, height: 10)
-                .frame(width: 28, alignment: .center)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(feature)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                Text(description)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+            if let note {
+                Text("(\(note))")
+                    .font(.system(size: 10))
+                    .foregroundStyle(.tertiary)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

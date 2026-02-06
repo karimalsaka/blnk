@@ -4,22 +4,14 @@ struct OnboardingBulletItem: View {
     let text: String
 
     var body: some View {
-        HStack(alignment: .center, spacing: 10) {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(AppTheme.accentSoft)
-                .frame(width: 24, height: 24)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .stroke(AppTheme.stroke, lineWidth: 1)
-                )
-                .overlay(
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(AppTheme.accent)
-                )
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Circle()
+                .fill(AppTheme.accent.opacity(0.7))
+                .frame(width: 5, height: 5)
+                .offset(y: 1)
 
             Text(text)
-                .font(.system(size: 13, weight: .regular, design: .rounded))
+                .font(.system(size: 13))
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }

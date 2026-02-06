@@ -6,81 +6,88 @@
   <title>blnk — Pull Requests at a Glance</title>
   <meta name="description" content="blnk keeps pull requests in focus with instant status, review requests, and conversations in a compact macOS view.">
   <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="assets/200x200.png">
 </head>
 <body>
   <div class="container">
     <nav class="nav">
-      <div class="brand">
-        <span>blnk</span>
-      </div>
+      <a href="/" class="brand">
+        <img src="assets/200x200.png" alt="" class="brand-logo">
+        <span class="brand-name">blnk</span>
+      </a>
       <div class="nav-links">
         <a href="#features">Benefits</a>
-        <a href="#how">Setup</a>
-        <a href="#security">Permissions</a>
+        <a href="#setup">Setup</a>
+        <a href="#security">Security</a>
       </div>
     </nav>
 
     <main>
       <section class="hero">
-        <div class="hero-copy reveal" style="--delay: 0s">
-          <div class="badge">Pull requests, at a glance</div>
-          <h1>Everything you need, before you blink.</h1>
-          <p>GitHub is the system of record, not the fastest way to scan blnk gives you the state of every PR at a glance from your menu bar</p>
-          <div class="cta">
-            <!-- Update this link to your release or GitHub repo -->
-            <a class="btn primary" href="https://github.com/karimalsaka/PRPulse/releases/download/v0.1.0/blnk.dmg">Download DMG</a>
-            <a class="btn ghost" href="#features">What you get</a>
+        <div class="hero-content reveal" style="--delay: 0s">
+          <div class="hero-badge">Menu bar app for macOS</div>
+          <h1>Everything you need, before you <span>blink.</span></h1>
+          <p class="hero-description">GitHub is your system of record, not your fastest view. blnk surfaces every PR's status, reviews, and threads from your menu bar.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="https://github.com/karimalsaka/PRPulse/releases/download/v0.1.0/blnk.dmg">Download for Mac</a>
+            <a class="btn btn-secondary" href="#features">Learn more</a>
           </div>
-          <ul class="quick-facts">
-            <li>An always‑visible summary of what needs action</li>
-            <li>Instant triage: what’s blocked, waiting, or approved across repos</li>
-            <li>The view you need when you have too many PRs</li>
-          </ul>
+          <div class="hero-features">
+            <div class="hero-feature">Always-visible summary of what needs action</div>
+            <div class="hero-feature">Instant triage across all your repos</div>
+            <div class="hero-feature">Read threads without opening a browser</div>
+          </div>
         </div>
         <div class="hero-visual reveal" style="--delay: 0.1s">
-          <img src="assets/screenshot-hero.png" alt="blnk app overview">
+          <div class="screenshot-wrapper">
+            <img src="assets/screenshot-hero.png" alt="blnk app showing pull request overview">
+          </div>
         </div>
       </section>
 
       <section class="section" id="features">
-        <h2 class="reveal" style="--delay: 0s">What you get</h2>
-        <p class="lead reveal" style="--delay: 0.05s">Focused signal for the PRs you own or review.</p>
-        <div class="grid">
-          <article class="card reveal" style="--delay: 0.1s">
+        <div class="section-header reveal" style="--delay: 0s">
+          <h2>What you get</h2>
+          <p>Focused signal for the PRs you own or review.</p>
+        </div>
+        <div class="features-grid">
+          <article class="feature-card reveal" style="--delay: 0.05s">
             <h3>Needs attention, fast</h3>
             <p>See failing CI, merge conflicts, or change requests before they block release.</p>
           </article>
-          <article class="card reveal" style="--delay: 0.15s">
+          <article class="feature-card reveal" style="--delay: 0.1s">
             <h3>Review requests, centralized</h3>
             <p>Every requested review across orgs in one list.</p>
           </article>
-          <article class="card reveal" style="--delay: 0.2s">
+          <article class="feature-card reveal" style="--delay: 0.15s">
             <h3>Conversation context</h3>
             <p>Read recent discussion and inline threads without opening a browser.</p>
           </article>
-          <article class="card reveal" style="--delay: 0.25s">
+          <article class="feature-card reveal" style="--delay: 0.2s">
             <h3>My PRs, always current</h3>
             <p>Track your own PRs with approvals, feedback, and status updates.</p>
           </article>
         </div>
       </section>
 
-      <section class="section" id="how">
-        <h2 class="reveal" style="--delay: 0s">Setup</h2>
-        <p class="lead reveal" style="--delay: 0.05s">Two quick steps. Notifications are on the way.</p>
-        <div class="steps">
-          <div class="step reveal" style="--delay: 0.1s">
-            <span>1</span>
-            <h3>Connect GitHub</h3>
-            <p>Create a read-only GitHub token with access to pull requests, CI status, reviews, and comments.</p>
+      <section class="section" id="setup">
+        <div class="section-header reveal" style="--delay: 0s">
+          <h2>Setup</h2>
+          <p>Two quick steps to get started.</p>
+        </div>
+        <div class="steps-grid">
+          <div class="step-card reveal" style="--delay: 0.05s">
+            <div class="step-number">1</div>
+            <h3>Create a GitHub token</h3>
+            <p>Generate a read-only token with access to pull requests, CI status, reviews, and comments.</p>
           </div>
-          <div class="step reveal" style="--delay: 0.15s">
-            <span>2</span>
-            <h3>Enter your token</h3>
-            <p>Paste it into blnk and your PRs appear instantly.</p>
+          <div class="step-card reveal" style="--delay: 0.1s">
+            <div class="step-number">2</div>
+            <h3>Paste into blnk</h3>
+            <p>Enter your token and your PRs appear instantly in the menu bar.</p>
           </div>
-          <div class="step reveal" style="--delay: 0.2s">
-            <span>3</span>
+          <div class="step-card reveal" style="--delay: 0.15s">
+            <div class="step-number">3</div>
             <h3>Notifications</h3>
             <p>Coming soon.</p>
           </div>
@@ -88,19 +95,35 @@
       </section>
 
       <section class="section" id="security">
-        <h2 class="reveal" style="--delay: 0s">Permissions</h2>
-        <p class="lead reveal" style="--delay: 0.05s">blnk talks directly to GitHub and keeps everything local.</p>
-        <div class="callouts">
-          <div class="callout reveal" style="--delay: 0.1s"><strong>Read-only scopes.</strong> Pull requests, CI status, reviews, comments.</div>
-          <div class="callout reveal" style="--delay: 0.15s"><strong>Local storage.</strong> Tokens stay on your Mac in keychain.</div>
-          <div class="callout reveal" style="--delay: 0.2s"><strong>No middleman.</strong> Direct GitHub GraphQL API calls.</div>
+        <div class="section-header reveal" style="--delay: 0s">
+          <h2>Security</h2>
+          <p>blnk talks directly to GitHub and keeps everything local.</p>
+        </div>
+        <div class="permissions-grid">
+          <div class="permission-card reveal" style="--delay: 0.05s">
+            <div class="indicator">Secure</div>
+            <h3>Read-only scopes</h3>
+            <p>Pull requests, CI status, reviews, comments. No write access needed.</p>
+          </div>
+          <div class="permission-card reveal" style="--delay: 0.1s">
+            <div class="indicator">Local</div>
+            <h3>Keychain storage</h3>
+            <p>Your token stays on your Mac in the system keychain.</p>
+          </div>
+          <div class="permission-card reveal" style="--delay: 0.15s">
+            <div class="indicator">Direct</div>
+            <h3>No middleman</h3>
+            <p>Direct GraphQL calls to GitHub's API. No proxy servers.</p>
+          </div>
         </div>
       </section>
-
     </main>
 
     <footer class="footer">
-      <span>Built for teams who live in pull requests.</span>
+      <div class="footer-brand">
+        <img src="assets/200x200.png" alt="">
+        <span>Built for teams who live in pull requests.</span>
+      </div>
     </footer>
   </div>
 </body>

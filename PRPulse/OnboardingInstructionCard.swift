@@ -28,40 +28,53 @@ struct OnboardingInstructionCard<Content: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .top, spacing: 10) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .center, spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 8) {
+                        Text(title)
+                            .font(.system(size: 13, weight: .semibold))
+
+                        if tagText != nil {
+                            Text("Recommended")
+                                .font(.system(size: 10, weight: .medium))
+                                .foregroundColor(AppTheme.success)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                        .fill(AppTheme.successSoft)
+                                )
+                        }
+                    }
+
                     if let subtitle {
                         Text(subtitle)
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .font(.system(size: 11))
                             .foregroundColor(.secondary)
                     }
                 }
 
                 Spacer()
 
-                if let tagText {
-                    AppTag(text: tagText, icon: "sparkles", tint: tagTint)
+                Button(action: action) {
+                    Text(actionTitle)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(AppTheme.accent)
                 }
+                .buttonStyle(.plain)
             }
 
             content
-
-            HStack {
-                Spacer()
-                Button(actionTitle, action: action)
-                    .buttonStyle(AppSoftButtonStyle(tint: AppTheme.accent))
-            }
+                .padding(.leading, 1)
         }
-        .padding(20)
+        .padding(14)
         .background(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(AppTheme.cardSurface)
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(AppTheme.surface)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .stroke(AppTheme.stroke.opacity(0.8), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(AppTheme.stroke, lineWidth: 1)
                 )
         )
     }

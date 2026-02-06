@@ -22,79 +22,40 @@ struct OnboardingStepView<Content: View>: View {
     }
 
     var body: some View {
-        OnboardingCard {
-            VStack(spacing: 24) {
-                if let heroImageName {
-                    OnboardingHeroImage(
-                        name: heroImageName,
-                        accessibilityLabel: heroAccessibilityLabel
-                    )
-                }
-
-                // Title and Subtitle
-                headerText
-
-                // Content
-                content
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 0) {
+            if let heroImageName {
+                OnboardingHeroImage(
+                    name: heroImageName,
+                    accessibilityLabel: heroAccessibilityLabel
+                )
+                .padding(.bottom, 20)
             }
+
+            headerText
+                .padding(.bottom, 24)
+
+            content
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .padding(.vertical, 8)
     }
 
     // MARK: - Header Text
 
     private var headerText: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 6) {
             Text(title)
-                .font(.system(size: 24, weight: .bold, design: .rounded))
-                .fontWeight(.bold)
+                .font(.system(size: 28, weight: .semibold))
                 .multilineTextAlignment(.center)
 
             if let subtitle = subtitle {
                 Text(subtitle)
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .font(.system(size: 14))
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
-    }
-}
-
-private struct OnboardingCard<Content: View>: View {
-    let content: Content
-
-    init(@ViewBuilder content: () -> Content) {
-        self.content = content()
-    }
-
-    var body: some View {
-        content
-            .padding(32)
-            .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(AppTheme.cardSurface)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .stroke(AppTheme.strokeStrong.opacity(0.9), lineWidth: 1)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .stroke(
-                                LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(0.10),
-                                        Color.clear
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                ),
-                                lineWidth: 1
-                            )
-                            .blendMode(.overlay)
-                    )
-            )
-            .shadow(color: AppTheme.cardShadow.opacity(0.30), radius: 14, x: 0, y: 10)
     }
 }
 
@@ -106,13 +67,12 @@ private struct OnboardingHeroImage: View {
         Image(name)
             .resizable()
             .renderingMode(.template)
-            .foregroundStyle(Color.white.opacity(0.92))
+            .foregroundStyle(AppTheme.textPrimary.opacity(0.85))
             .scaledToFit()
-            .frame(height: 150)
-            .shadow(color: AppTheme.cardShadow.opacity(0.55), radius: 18, x: 0, y: 14)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(accessibilityLabel ?? "")
-        .accessibilityHidden(accessibilityLabel == nil)
+            .frame(height: 80)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(accessibilityLabel ?? "")
+            .accessibilityHidden(accessibilityLabel == nil)
     }
 }
 
@@ -121,37 +81,19 @@ private struct OnboardingHeroImage: View {
 struct OnboardingStepView_Previews: PreviewProvider {
     static var previews: some View {
         OnboardingStepView(
-            title: "Welcome to blnk",
-            subtitle: "Monitor your GitHub pull requests from your menu bar",
+            title: "blnk",
+            subtitle: "Your pull requests, always visible",
             heroImageName: "ghost-image-large",
             heroAccessibilityLabel: "blnk"
         ) {
             VStack(alignment: .leading, spacing: 12) {
-                Text("blnk helps you stay on top of your pull requests with:")
+                Text("Features:")
                     .font(.subheadline)
-
-                BulletPointView(text: "Real-time status updates")
-                BulletPointView(text: "CI/CD check monitoring")
-                BulletPointView(text: "Review state tracking")
-                BulletPointView(text: "Recent comment notifications")
+                    .foregroundColor(.secondary)
             }
         }
         .frame(width: 600)
         .padding()
         .preferredColorScheme(.dark)
-    }
-}
-
-// MARK: - Bullet Point Helper
-
-struct BulletPointView: View {
-    let text: String
-
-    var body: some View {
-        HStack(spacing: 8) {
-            Text(text)
-                .font(.system(size: 13, weight: .regular, design: .rounded))
-                .foregroundColor(.secondary)
-        }
     }
 }

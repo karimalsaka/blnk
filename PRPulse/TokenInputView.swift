@@ -8,8 +8,7 @@ struct TokenInputView: View {
     @FocusState private var isTokenFieldFocused: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            headerSection
+        VStack(alignment: .leading, spacing: 20) {
             tokenInputField
             securityNote
         }
@@ -18,72 +17,48 @@ struct TokenInputView: View {
         }
     }
 
-    // MARK: - Header
-
-    private var headerSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Enter Your GitHub Token")
-                .font(.headline)
-
-            Text("Paste your Personal Access Token below")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-    }
-
     // MARK: - Token Input Field
 
     private var tokenInputField: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 12) {
-                Image(systemName: "key.fill")
-                    .foregroundColor(.secondary)
-                    .frame(width: 20)
-
-                SecureField("ghp_xxxxxxxxxxxxxxxxxxxx", text: $tokenInput)
-                    .textFieldStyle(.plain)
-                    .font(.system(.body, design: .monospaced))
-                    .focused($isTokenFieldFocused)
-                    .onSubmit {
-                        if !tokenInput.isEmpty {
-                            onValidate()
-                        }
+            SecureField("ghp_xxxxxxxxxxxxxxxxxxxx", text: $tokenInput)
+                .textFieldStyle(.plain)
+                .font(.system(size: 14, design: .monospaced))
+                .focused($isTokenFieldFocused)
+                .onSubmit {
+                    if !tokenInput.isEmpty {
+                        onValidate()
                     }
-                    .disabled(isValidating)
-
-                if isValidating {
-                    ProgressView()
-                        .controlSize(.small)
-                        .frame(width: 16, height: 16)
                 }
-            }
-            .padding(12)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(AppTheme.elevatedSurface)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .stroke(AppTheme.stroke.opacity(0.6), lineWidth: 1)
-                    )
-            )
+                .disabled(isValidating)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(AppTheme.surface)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .stroke(AppTheme.stroke, lineWidth: 1)
+                        )
+                )
 
             Button(action: onValidate) {
-                HStack {
+                HStack(spacing: 8) {
                     if isValidating {
                         ProgressView()
                             .controlSize(.small)
                             .tint(.white)
                         Text("Validating...")
                     } else {
-                        Image(systemName: "checkmark.circle.fill")
-                        Text("Validate Token")
+                        Text("Validate")
                     }
                 }
+                .font(.system(size: 13, weight: .medium))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
             }
-            .buttonStyle(AppPrimaryButtonStrongStyle())
-            .opacity(tokenInput.trimmingCharacters(in: .whitespaces).isEmpty || isValidating ? 0.6 : 1)
+            .buttonStyle(AppPrimaryButtonStyle())
+            .opacity(tokenInput.trimmingCharacters(in: .whitespaces).isEmpty || isValidating ? 0.5 : 1)
             .disabled(tokenInput.trimmingCharacters(in: .whitespaces).isEmpty || isValidating)
         }
     }
@@ -91,28 +66,17 @@ struct TokenInputView: View {
     // MARK: - Security Note
 
     private var securityNote: some View {
-        HStack(alignment: .top, spacing: 8) {
-            Image(systemName: "lock.shield.fill")
-                .font(.caption)
-                .foregroundColor(AppTheme.accent)
-                .frame(width: 16)
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "lock.fill")
+                .font(.system(size: 11))
+                .foregroundStyle(.tertiary)
+                .frame(width: 14)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Stored in keychain")
-                    .font(.caption)
-                    .fontWeight(.medium)
-
-                Text("blnk keeps your token in keychain and never sends it to any third-party servers. It's only used to communicate directly with GitHub's API.")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
+            Text("Your token is stored securely in macOS Keychain and only used to connect to GitHub.")
+                .font(.system(size: 11))
+                .foregroundStyle(.tertiary)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(AppTheme.accentSoft)
-        )
     }
 }
 
@@ -124,15 +88,6 @@ struct TokenInputView_Previews: PreviewProvider {
             TokenInputView(
                 tokenInput: .constant(""),
                 isValidating: false,
-                onValidate: {}
-            )
-
-            Divider()
-                .padding(.vertical)
-
-            TokenInputView(
-                tokenInput: .constant("ghp_1234567890"),
-                isValidating: true,
                 onValidate: {}
             )
         }
