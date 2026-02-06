@@ -53,7 +53,7 @@ struct PRRowView: View {
         let cardHoverActive = isHovered && !isDiscussionHovered && !isInlineHovered && !isCommentHovered
         ZStack(alignment: .leading) {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .fill(AppTheme.surface)
+                .fill(AppTheme.cardSurface)
                 .overlay(
                     RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                         .fill(AppTheme.hoverOverlay.opacity(cardHoverActive ? 1 : 0))
