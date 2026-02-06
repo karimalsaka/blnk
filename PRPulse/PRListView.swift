@@ -12,10 +12,13 @@ struct PRListView: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .center) {
                     VStack(alignment: .leading, spacing: 6) {
-                        HStack(spacing: 10) {
-                            Text("blnk")
-                                .font(.system(size: 18, weight: .bold, design: .rounded))
-                                .foregroundColor(AppTheme.textPrimary)
+                        HStack(spacing: 5) {
+                            Image("ghost-image")
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .foregroundStyle(.white)
+                                .frame(width: 50, height: 50)
 
                             if !service.pullRequests.isEmpty {
                                 HealthSummaryView(service: service)
@@ -171,7 +174,7 @@ struct PRListView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
         }
-        .frame(width: 450, height: 670)
+        .frame(width: AppLayout.menuPopoverWidth, height: AppLayout.menuPopoverHeight)
         .background(AppTheme.canvas)
         .onChange(of: service.activeFilter) { _ in
             rowExpansions = [:]
@@ -334,7 +337,7 @@ struct PRListView_Previews: PreviewProvider {
             .previewDisplayName("PR List - To Review")
         }
         .preferredColorScheme(.dark)
-        .frame(width: 420, height: 720)
+        .frame(width: AppLayout.menuPopoverWidth, height: AppLayout.menuPopoverHeight)
         .padding(.horizontal)
     }
 }

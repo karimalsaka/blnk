@@ -413,10 +413,12 @@ struct PRRowView: View {
             ReasonTag(id: text, text: text, icon: icon, tint: tint)
         }
 
+        let hasFailureOrChangesRequested =
+            (permissionsState.canReadCommitStatuses && pr.ciStatus == .failure) ||
+            (permissionsState.canReadReviews && pr.reviewState == .changesRequested)
+
         let details: [ReasonTag] = [
             pr.hasConflicts ? tag("Conflicts", "exclamationmark.triangle.fill", AppTheme.danger) : nil,
-            (permissionsState.canReadCommitStatuses && pr.ciStatus == .failure) ? tag("CI failure", "xmark.circle.fill", AppTheme.danger) : nil,
-            (permissionsState.canReadReviews && pr.reviewState == .changesRequested) ? tag("Changes requested", "exclamationmark.triangle.fill", AppTheme.warning) : nil
         ].compactMap { $0 }
 
         let isToReview = pr.isRequestedReviewer && !pr.isReviewedByMe
@@ -439,6 +441,9 @@ struct PRRowView: View {
             }
             if !details.isEmpty {
                 return details
+            }
+            if hasFailureOrChangesRequested {
+                return []
             }
             return [tag("Needs attention", "exclamationmark.circle.fill", AppTheme.danger)]
 

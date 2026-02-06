@@ -100,6 +100,11 @@ enum AppTheme {
     #endif
 }
 
+enum AppLayout {
+    static let menuPopoverWidth: CGFloat = 450
+    static let menuPopoverHeight: CGFloat = 670
+}
+
 struct AppBackground: View {
     var body: some View {
         AppTheme.canvas
@@ -154,6 +159,80 @@ struct AppTag: View {
                 )
         )
         .foregroundColor(tint)
+    }
+}
+
+struct FlowLayout: Layout {
+    typealias Cache = Void
+
+    var spacing: CGFloat
+    var lineSpacing: CGFloat
+
+    init(spacing: CGFloat = 8, lineSpacing: CGFloat = 8) {
+        self.spacing = spacing
+        self.lineSpacing = lineSpacing
+    }
+
+    func sizeThatFits(
+        proposal: ProposedViewSize,
+        subviews: Subviews,
+        cache: inout Cache
+    ) -> CGSize {
+        let maxWidth = proposal.width ?? .greatestFiniteMagnitude
+        var lineWidth: CGFloat = 0
+        var lineHeight: CGFloat = 0
+        var totalHeight: CGFloat = 0
+        var maxLineWidth: CGFloat = 0
+
+        for subview in subviews {
+            let subviewSize = subview.sizeThatFits(.unspecified)
+            if lineWidth > 0, lineWidth + subviewSize.width > maxWidth {
+                maxLineWidth = max(maxLineWidth, lineWidth - spacing)
+                totalHeight += lineHeight + lineSpacing
+                lineWidth = 0
+                lineHeight = 0
+            }
+
+            lineWidth += subviewSize.width + spacing
+            lineHeight = max(lineHeight, subviewSize.height)
+        }
+
+        if lineWidth > 0 {
+            maxLineWidth = max(maxLineWidth, lineWidth - spacing)
+        }
+
+        let fittedWidth = proposal.width ?? maxLineWidth
+        let fittedHeight = totalHeight + lineHeight
+        return CGSize(width: fittedWidth, height: fittedHeight)
+    }
+
+    func placeSubviews(
+        in bounds: CGRect,
+        proposal: ProposedViewSize,
+        subviews: Subviews,
+        cache: inout Cache
+    ) {
+        var x = bounds.minX
+        var y = bounds.minY
+        var lineHeight: CGFloat = 0
+
+        for subview in subviews {
+            let subviewSize = subview.sizeThatFits(.unspecified)
+            if x > bounds.minX, x + subviewSize.width > bounds.maxX {
+                x = bounds.minX
+                y += lineHeight + lineSpacing
+                lineHeight = 0
+            }
+
+            subview.place(
+                at: CGPoint(x: x, y: y),
+                anchor: .topLeading,
+                proposal: ProposedViewSize(width: subviewSize.width, height: subviewSize.height)
+            )
+
+            x += subviewSize.width + spacing
+            lineHeight = max(lineHeight, subviewSize.height)
+        }
     }
 }
 

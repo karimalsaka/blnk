@@ -17,8 +17,11 @@ struct OnboardingPreviewSection<Content: View>: View {
                 RoundedRectangle(cornerRadius: 4, style: .continuous)
                     .fill(AppTheme.badgeGradient)
                     .frame(width: 40, height: 6)
+
                 Text(title)
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundColor(AppTheme.textPrimary)
+
                 Spacer()
                 AppTag(text: "Preview", icon: "sparkles", tint: AppTheme.accent)
             }
@@ -37,16 +40,12 @@ struct OnboardingPreviewSection<Content: View>: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(AppTheme.elevatedSurface)
+                .fill(AppTheme.canvas)
                 .overlay(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
                         .stroke(AppTheme.strokeStrong, lineWidth: 1)
                 )
-                .shadow(color: AppTheme.cardShadow.opacity(0.35), radius: 10, x: 0, y: 6)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(AppTheme.accent.opacity(0.12), lineWidth: 1)
+                .shadow(color: AppTheme.cardShadow.opacity(0.18), radius: 6, x: 0, y: 4)
         )
     }
 }

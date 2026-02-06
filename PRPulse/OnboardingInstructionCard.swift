@@ -58,7 +58,7 @@ struct OnboardingInstructionCard<Content: View>: View {
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(AppTheme.elevatedSurface)
+                .fill(AppTheme.cardSurface)
                 .overlay(
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .stroke(AppTheme.stroke.opacity(0.8), lineWidth: 1)

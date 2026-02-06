@@ -12,7 +12,7 @@ struct OnboardingView: View {
 
     var body: some View {
         ZStack {
-            AppBackground()
+            OnboardingBackground()
 
             VStack(spacing: 0) {
                 VStack(spacing: 16) {
@@ -30,7 +30,6 @@ struct OnboardingView: View {
             }
         }
         .frame(width: 840, height: 760)
-        .background(AppTheme.canvas)
         .animation(.easeInOut(duration: 0.35), value: viewModel.currentStep)
         .alert("Error", isPresented: $viewModel.showError) {
             Button("OK", role: .cancel) {}
@@ -67,21 +66,8 @@ struct OnboardingView: View {
     }
 
     private var stepHeader: some View {
-        VStack(spacing: 12) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("blnk Setup")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                    Text(stepSubtitle)
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
-                        .foregroundColor(.secondary)
-                }
-
-                Spacer()
-
-                AppTag(text: "Step \(currentStepIndex + 1) of \(steps.count)", icon: nil, tint: AppTheme.accent)
-            }
-
+        HStack {
+            Spacer()
             HStack(spacing: 8) {
                 ForEach(steps.indices, id: \.self) { index in
                     RoundedRectangle(cornerRadius: 999, style: .continuous)
@@ -90,16 +76,11 @@ struct OnboardingView: View {
                         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: currentStepIndex)
                 }
             }
+            Spacer()
         }
-        .padding(14)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(AppTheme.surface)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .stroke(AppTheme.stroke.opacity(0.6), lineWidth: 1)
-                )
-        )
+        .padding(.vertical, 10)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Step \(currentStepIndex + 1) of \(steps.count)")
     }
 
     private var steps: [OnboardingStep] {
@@ -110,21 +91,14 @@ struct OnboardingView: View {
         steps.firstIndex { $0 == viewModel.currentStep } ?? 0
     }
 
-    private var stepSubtitle: String {
-        switch viewModel.currentStep {
-        case .welcome: return "A quick look before you connect GitHub"
-        case .instructions: return "Create a token in under 2 minutes"
-        case .tokenInput: return "Paste a token to start tracking"
-        case .validation: return "Finishing setup and permissions"
-        }
-    }
-
     // MARK: - Welcome Step
 
     private var welcomeStep: some View {
         OnboardingStepView(
             title: "Welcome to blnk",
-            subtitle: "Monitor your GitHub pull requests from your menu bar"
+            subtitle: "Monitor your GitHub pull requests from your menu bar",
+            heroImageName: "ghost-image-onboarding",
+            heroAccessibilityLabel: "blnk"
         ) {
             VStack(alignment: .leading, spacing: 16) {
                 VStack(alignment: .leading, spacing: 12) {
@@ -133,6 +107,7 @@ struct OnboardingView: View {
                     OnboardingBulletItem(text: "Use Inbox, To Review, and Drafts filters")
                 }
                 .padding(.leading, 4)
+                .padding(.bottom, 25)
 
                 OnboardingPreviewSection(
                     title: "Your PR workspace",
@@ -140,6 +115,8 @@ struct OnboardingView: View {
                 ) {
                     previewCard
                 }
+                .frame(width: AppLayout.menuPopoverWidth)
+                .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.bottom, 12)
             }
         }
@@ -403,6 +380,36 @@ struct OnboardingView: View {
     }
 }
 
+private struct OnboardingBackground: View {
+    var body: some View {
+        AppTheme.canvas
+            .overlay(
+                LinearGradient(
+                    colors: [
+                        Color.black.opacity(0.40),
+                        Color.black.opacity(0.10),
+                        Color.black.opacity(0.45)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+            .overlay(
+                RadialGradient(
+                    colors: [
+                        AppTheme.accentSoft.opacity(0.40),
+                        Color.clear
+                    ],
+                    center: .topLeading,
+                    startRadius: 40,
+                    endRadius: 560
+                )
+                .opacity(0.35)
+            )
+            .ignoresSafeArea()
+    }
+}
+
 // MARK: - Welcome Preview
 
 private enum DemoFilter: String, CaseIterable, Identifiable {
@@ -432,50 +439,6 @@ private enum DemoFilter: String, CaseIterable, Identifiable {
 extension OnboardingView {
     private var previewCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .center) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Everything you need, before you blink")
-                        .font(.system(size: 14, weight: .semibold))
-                    
-                    Text("Pull Requests")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(.secondary)
-                }
-
-                Spacer()
-
-                Button(action: {}) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "arrow.clockwise")
-                            .font(.system(size: 11, weight: .semibold))
-                        Text("Refresh")
-                    }
-                }
-                .buttonStyle(AppToolbarButtonStyle(tint: AppTheme.accent))
-            }
-
-            HStack(spacing: 8) {
-                demoSummaryPill
-                Spacer()
-                HStack(spacing: 6) {
-                    Image(systemName: "clock")
-                        .font(.system(size: 10, weight: .semibold))
-                    Text("Updated just now")
-                        .font(.system(size: 10, weight: .semibold, design: .rounded))
-                }
-                .foregroundColor(AppTheme.muted)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(
-                    Capsule(style: .continuous)
-                        .fill(Color.white.opacity(0.03))
-                        .overlay(
-                            Capsule(style: .continuous)
-                                .stroke(AppTheme.stroke, lineWidth: 1)
-                        )
-                )
-            }
-
             HStack(spacing: 8) {
                 ForEach(DemoFilter.allCases) { filter in
                     demoFilterPill(for: filter)
@@ -495,14 +458,6 @@ extension OnboardingView {
             }
         }
         .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(AppTheme.surface)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(AppTheme.stroke.opacity(0.6), lineWidth: 1)
-                )
-        )
     }
 
     private func demoFilterPill(for filter: DemoFilter) -> some View {
