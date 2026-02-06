@@ -41,7 +41,9 @@ body {
   min-height: 100vh;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
+
 
 a {
   text-decoration: none;
@@ -56,6 +58,8 @@ img {
 .container {
   width: min(1080px, 92%);
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 /* ───────────────────────────────────────────
@@ -245,7 +249,6 @@ img {
   width: 100%;
   height: auto;
   display: block;
-  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.35));
 }
 
 /* ───────────────────────────────────────────
@@ -509,4 +512,5 @@ img {
   .nav-links a {
     transition: none;
   }
+
 }
