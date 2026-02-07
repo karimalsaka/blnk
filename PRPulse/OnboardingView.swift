@@ -3,7 +3,7 @@ import SwiftUI
 struct OnboardingView: View {
     @StateObject private var viewModel = OnboardingViewModel()
     @Namespace private var stepNamespace
-    @State private var demoFilter: DemoFilter = .needsReview
+    @State private var demoFilter: PRFilter = .inbox
     @State private var demoRowExpansions: [String: DemoRowExpansion] = [:]
     @State private var appeared = false
     let onComplete: () -> Void
@@ -364,30 +364,6 @@ private struct OnboardingBackground: View {
 
 // MARK: - Welcome Preview
 
-private enum DemoFilter: String, CaseIterable, Identifiable {
-    case needsReview
-    case approved
-    case drafts
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .needsReview: return "Needs Review"
-        case .approved: return "Approved"
-        case .drafts: return "Drafts"
-        }
-    }
-
-    var tint: Color {
-        switch self {
-        case .needsReview: return AppTheme.warning
-        case .approved: return AppTheme.success
-        case .drafts: return AppTheme.accent
-        }
-    }
-}
-
 private struct DemoRowExpansion: Equatable {
     var showComments = false
     var showThreads = false
@@ -395,69 +371,150 @@ private struct DemoRowExpansion: Equatable {
 
 extension OnboardingView {
     private var previewCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 4) {
-                ForEach(DemoFilter.allCases) { filter in
-                    demoFilterPill(for: filter)
-                }
-                Spacer()
-            }
+        VStack(alignment: .leading, spacing: 0) {
+            // Header
+            HStack(alignment: .center, spacing: 12) {
+                HStack(spacing: 10) {
+                    Image("ghost-image")
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundStyle(AppTheme.textPrimary.opacity(0.85))
+                        .frame(width: 36, height: 36)
 
-            VStack(spacing: 6) {
-                ForEach(demoPullRequests) { pullRequest in
-                    PRRowView(
-                        pr: pullRequest,
-                        permissionsState: demoPermissionsState,
-                        currentUserLogin: demoCurrentUser,
-                        activeFilter: .inbox,
-                        showComments: demoCommentBinding(for: pullRequest.id),
-                        showThreads: demoThreadBinding(for: pullRequest.id),
-                        isInteractive: false
-                    )
+                    demoHealthSummary
                 }
-            }
-        }
-        .padding(12)
-        .frame(width: AppLayout.menuPopoverWidth)
-        .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(AppTheme.surface)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .stroke(AppTheme.stroke, lineWidth: 1)
+
+                Spacer()
+
+                // Refresh button (non-interactive in demo)
+                HStack(spacing: 5) {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.system(size: 10, weight: .semibold))
+                    Text("Refresh")
+                        .font(.system(size: 10, weight: .semibold))
+                }
+                .foregroundColor(AppTheme.accent.opacity(0.9))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .fill(AppTheme.accentSoft.opacity(0.6))
                 )
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 20)
+            .padding(.bottom, 14)
+
+            // Filter pills
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(PRFilter.allCases) { filter in
+                        FilterPill(
+                            filter: filter,
+                            isActive: demoFilter == filter,
+                            count: demoCount(for: filter)
+                        ) {
+                            withAnimation(.easeOut(duration: 0.15)) {
+                                demoFilter = filter
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 1)
+            }
+            .padding(.bottom, 12)
+
+            // PR rows
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 10) {
+                    ForEach(demoPullRequests) { pullRequest in
+                        PRRowView(
+                            pr: pullRequest,
+                            permissionsState: demoPermissionsState,
+                            currentUserLogin: demoCurrentUser,
+                            activeFilter: demoFilter,
+                            showComments: demoCommentBinding(for: pullRequest.id),
+                            showThreads: demoThreadBinding(for: pullRequest.id),
+                            isInteractive: false
+                        )
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 2)
+                .padding(.bottom, 16)
+            }
+            .scrollIndicators(.hidden)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            // Footer divider
+            Rectangle()
+                .fill(AppTheme.stroke)
+                .frame(height: 1)
+
+            // Footer
+            HStack(spacing: 10) {
+                HStack(spacing: 5) {
+                    Circle()
+                        .fill(AppTheme.success.opacity(0.8))
+                        .frame(width: 5, height: 5)
+                    Text("Updated just now")
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
+
+                Image(systemName: "gearshape")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(.secondary.opacity(0.8))
+                    .frame(width: 28, height: 28)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 14)
+        }
+        .frame(width: AppLayout.menuPopoverWidth, height: AppLayout.menuPopoverHeight)
+        .background(AppTheme.canvas)
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .stroke(AppTheme.stroke, lineWidth: 1)
         )
         .onChange(of: demoFilter) { _ in
             demoRowExpansions = [:]
         }
     }
 
-    private func demoFilterPill(for filter: DemoFilter) -> some View {
-        Button {
-            withAnimation(.easeOut(duration: 0.15)) {
-                demoFilter = filter
-            }
-        } label: {
-            Text(filter.title)
-                .font(.system(size: 11, weight: demoFilter == filter ? .semibold : .regular))
-                .foregroundColor(demoFilter == filter ? AppTheme.textPrimary : .secondary)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .background(
-                    RoundedRectangle(cornerRadius: 6, style: .continuous)
-                        .fill(demoFilter == filter ? AppTheme.elevatedSurface : Color.clear)
-                )
+    private var demoHealthSummary: some View {
+        // Static summary - always shows "1 to review" like the real HealthSummaryView
+        let color = AppTheme.warning
+        let text = "1 to review"
+
+        return HStack(spacing: 5) {
+            Circle()
+                .fill(color)
+                .frame(width: 6, height: 6)
+
+            Text(text)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(color)
         }
-        .buttonStyle(.plain)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(color.opacity(0.1))
+        )
     }
 
     private var demoPullRequests: [PullRequest] {
         demoPullRequests(for: demoFilter)
     }
 
-    private func demoPullRequests(for filter: DemoFilter) -> [PullRequest] {
+    private func demoPullRequests(for filter: PRFilter) -> [PullRequest] {
         switch filter {
-        case .needsReview:
+        case .inbox:
             return [
                 makeDemoPullRequest(
                     id: 1,
@@ -469,7 +526,7 @@ extension OnboardingView {
                     reviewState: .pending,
                     recentComments: [
                         demoComment(id: "d1", author: "maria", body: "Should we cap max retries here?", minutesAgo: 210),
-                        demoComment(id: "d2", author: "you", body: "Good call — I’ll add a guard.", minutesAgo: 95)
+                        demoComment(id: "d2", author: "you", body: "Good call — I'll add a guard.", minutesAgo: 95)
                     ],
                     reviewThreads: [
                         demoThread(
@@ -493,7 +550,10 @@ extension OnboardingView {
                     recentComments: [
                         demoComment(id: "d3", author: "lee", body: "Seeing failures on iOS 17 again.", minutesAgo: 60)
                     ]
-                ),
+                )
+            ]
+        case .review:
+            return [
                 makeDemoPullRequest(
                     id: 3,
                     title: "Add audit log filter",
@@ -501,10 +561,11 @@ extension OnboardingView {
                     number: 311,
                     isDraft: false,
                     ciStatus: .success,
-                    reviewState: .pending
+                    reviewState: .pending,
+                    isRequestedReviewer: true
                 )
             ]
-        case .approved:
+        case .discussed:
             return [
                 makeDemoPullRequest(
                     id: 4,
@@ -514,6 +575,7 @@ extension OnboardingView {
                     isDraft: false,
                     ciStatus: .success,
                     reviewState: .approved,
+                    isReviewedByMe: true,
                     recentComments: [
                         demoComment(id: "d4", author: "sarah", body: "Looks crisp. Nice polish.", minutesAgo: 120)
                     ]
@@ -525,7 +587,8 @@ extension OnboardingView {
                     number: 412,
                     isDraft: false,
                     ciStatus: .success,
-                    reviewState: .approved
+                    reviewState: .approved,
+                    isReviewedByMe: true
                 ),
                 makeDemoPullRequest(
                     id: 6,
@@ -535,6 +598,7 @@ extension OnboardingView {
                     isDraft: false,
                     ciStatus: .success,
                     reviewState: .approved,
+                    hasMyComment: true,
                     reviewThreads: [
                         demoThread(
                             id: "t2",
@@ -544,6 +608,75 @@ extension OnboardingView {
                             ]
                         )
                     ]
+                ),
+                makeDemoPullRequest(
+                    id: 10,
+                    title: "Add webhook retry logic",
+                    repoFullName: "acme/notifications",
+                    number: 89,
+                    isDraft: false,
+                    ciStatus: .success,
+                    reviewState: .pending,
+                    hasMyComment: true,
+                    recentComments: [
+                        demoComment(id: "d6", author: "you", body: "I think we need exponential backoff here", minutesAgo: 30)
+                    ]
+                ),
+                makeDemoPullRequest(
+                    id: 11,
+                    title: "Fix race condition in queue",
+                    repoFullName: "acme/workers",
+                    number: 234,
+                    isDraft: false,
+                    ciStatus: .pending,
+                    reviewState: .changesRequested,
+                    isReviewedByMe: true
+                )
+            ]
+        case .mine:
+            return [
+                makeDemoPullRequest(
+                    id: 12,
+                    title: "Add dark mode toggle",
+                    repoFullName: "acme/settings",
+                    number: 156,
+                    authorLogin: "you",
+                    isDraft: false,
+                    ciStatus: .success,
+                    reviewState: .approved
+                ),
+                makeDemoPullRequest(
+                    id: 13,
+                    title: "Refactor auth middleware",
+                    repoFullName: "acme/api-gateway",
+                    number: 892,
+                    authorLogin: "you",
+                    isDraft: false,
+                    ciStatus: .pending,
+                    reviewState: .pending
+                ),
+                makeDemoPullRequest(
+                    id: 14,
+                    title: "Update dependencies",
+                    repoFullName: "acme/frontend",
+                    number: 445,
+                    authorLogin: "you",
+                    isDraft: false,
+                    ciStatus: .failure,
+                    reviewState: .changesRequested,
+                    recentComments: [
+                        demoComment(id: "d7", author: "alex", body: "The new version breaks our build", minutesAgo: 15)
+                    ]
+                ),
+                makeDemoPullRequest(
+                    id: 15,
+                    title: "Add metrics dashboard",
+                    repoFullName: "acme/analytics",
+                    number: 67,
+                    authorLogin: "you",
+                    isDraft: false,
+                    ciStatus: .success,
+                    reviewState: .pending
                 )
             ]
         case .drafts:
@@ -553,76 +686,17 @@ extension OnboardingView {
                     title: "Refine reviewer hints",
                     repoFullName: "acme/prpulse-mac",
                     number: 63,
+                    authorLogin: "you",
                     isDraft: true,
                     ciStatus: .pending,
-                    reviewState: .unknown
-                ),
-                makeDemoPullRequest(
-                    id: 8,
-                    title: "Add search by label",
-                    repoFullName: "acme/frontend",
-                    number: 1203,
-                    isDraft: true,
-                    ciStatus: .pending,
-                    reviewState: .unknown,
-                    recentComments: [
-                        demoComment(id: "d5", author: "jules", body: "Can this filter by multiple labels?", minutesAgo: 45)
-                    ]
-                ),
-                makeDemoPullRequest(
-                    id: 9,
-                    title: "Streamline notifications",
-                    repoFullName: "acme/core",
-                    number: 506,
-                    isDraft: true,
-                    ciStatus: .unknown,
                     reviewState: .unknown
                 )
             ]
         }
     }
 
-    private func demoCount(for filter: DemoFilter) -> Int {
+    private func demoCount(for filter: PRFilter) -> Int {
         demoPullRequests(for: filter).count
-    }
-
-    private var demoSummaryPill: some View {
-        HStack(spacing: 4) {
-            Image(systemName: demoSummaryIcon)
-                .font(.system(size: 10))
-                .foregroundColor(demoSummaryColor)
-            Text(demoSummaryText)
-                .font(.system(size: 10, weight: .semibold, design: .rounded))
-                .foregroundColor(demoSummaryColor)
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(demoSummaryColor.opacity(0.12))
-        .cornerRadius(999)
-    }
-
-    private var demoSummaryText: String {
-        switch demoFilter {
-        case .needsReview: return "2 need attention"
-        case .approved: return "All good"
-        case .drafts: return "3 drafts"
-        }
-    }
-
-    private var demoSummaryColor: Color {
-        switch demoFilter {
-        case .needsReview: return AppTheme.warning
-        case .approved: return AppTheme.success
-        case .drafts: return AppTheme.accent
-        }
-    }
-
-    private var demoSummaryIcon: String {
-        switch demoFilter {
-        case .needsReview: return "clock.circle.fill"
-        case .approved: return "checkmark.circle.fill"
-        case .drafts: return "pencil.circle.fill"
-        }
     }
 
     private var demoPermissionsState: PermissionsState {
@@ -648,6 +722,9 @@ extension OnboardingView {
         ciStatus: CIStatus,
         failedChecks: [String] = [],
         reviewState: ReviewState,
+        isRequestedReviewer: Bool = false,
+        isReviewedByMe: Bool = false,
+        hasMyComment: Bool = false,
         recentComments: [PRComment] = [],
         reviewThreads: [PRCommentThread] = []
     ) -> PullRequest {
@@ -666,7 +743,10 @@ extension OnboardingView {
             failedChecks: failedChecks,
             reviewState: reviewState,
             recentComments: recentComments,
-            reviewThreads: reviewThreads
+            reviewThreads: reviewThreads,
+            isRequestedReviewer: isRequestedReviewer,
+            isReviewedByMe: isReviewedByMe,
+            hasMyComment: hasMyComment
         )
     }
 
