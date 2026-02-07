@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 @main
 struct PRPulseApp: App {
@@ -19,6 +20,11 @@ struct PRPulseApp: App {
                     SetupRequiredView {
                         showingTokenSheet = true
                     }
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .prefetchPRData)) { _ in
+                if hasToken && !service.isLoading {
+                    service.fetch()
                 }
             }
             .onAppear {
@@ -169,6 +175,11 @@ private struct SetupRequiredView: View {
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    private var mouseMonitor: Any?
+    private var lastPrefetchTime: Date = .distantPast
+    private let prefetchCooldown: TimeInterval = 30 // Don't prefetch more than once per 30 seconds
+    private var isInMenuBarArea: Bool = false
+
     func applicationDidFinishLaunching(_ notification: Notification) {
 #if canImport(AppKit)
         NSApp.appearance = NSAppearance(named: .darkAqua)
@@ -178,5 +189,53 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 SettingsWindowController.shared.show(showOnboarding: true) {}
             }
         }
+
+        setupMenuBarHoverMonitor()
     }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        if let monitor = mouseMonitor {
+            NSEvent.removeMonitor(monitor)
+        }
+    }
+
+    private func setupMenuBarHoverMonitor() {
+        mouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: .mouseMoved) { [weak self] event in
+            guard let self = self else { return }
+
+            // Check if mouse is in menu bar area (top 24 pixels of screen)
+            guard let screen = NSScreen.main else { return }
+            let mouseY = event.locationInWindow.y
+            let screenHeight = screen.frame.height
+            let menuBarHeight: CGFloat = 24
+
+            let wasInMenuBar = self.isInMenuBarArea
+            self.isInMenuBarArea = mouseY >= screenHeight - menuBarHeight
+
+            // Only trigger when first entering the menu bar area
+            if self.isInMenuBarArea && !wasInMenuBar {
+                self.triggerPrefetchIfNeeded()
+            }
+        }
+    }
+
+    private func triggerPrefetchIfNeeded() {
+        let now = Date()
+        guard now.timeIntervalSince(lastPrefetchTime) > prefetchCooldown else {
+            print("[Prefetch] Skipped - cooldown active (\(Int(prefetchCooldown - now.timeIntervalSince(lastPrefetchTime)))s remaining)")
+            return
+        }
+        guard TokenManager.shared.hasToken else {
+            print("[Prefetch] Skipped - no token")
+            return
+        }
+
+        print("[Prefetch] Triggered - mouse in menu bar area")
+        lastPrefetchTime = now
+        NotificationCenter.default.post(name: .prefetchPRData, object: nil)
+    }
+}
+
+extension Notification.Name {
+    static let prefetchPRData = Notification.Name("prefetchPRData")
 }

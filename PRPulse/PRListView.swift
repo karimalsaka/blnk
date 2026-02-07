@@ -28,7 +28,7 @@ struct PRListView: View {
 
                     Spacer()
 
-                    Button(action: { service.fetch() }) {
+                    Button(action: { service.fetch(force: true) }) {
                         HStack(spacing: 6) {
                             if service.isLoading {
                                 AppInlineSpinner(tint: AppTheme.accent, size: 13, lineWidth: 2)

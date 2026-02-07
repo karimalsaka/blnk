@@ -112,7 +112,7 @@ final class GitHubService: ObservableObject {
         timer = nil
     }
 
-    func fetch() {
+    func fetch(force: Bool = false) {
         if useMockData {
             loadMockData()
             return
@@ -123,19 +123,39 @@ final class GitHubService: ObservableObject {
             return
         }
 
+        // Skip if data was fetched recently (within 30 seconds) unless forced
+        if !force, let lastUpdated = lastUpdated {
+            let elapsed = Date().timeIntervalSince(lastUpdated)
+            if elapsed < 30 {
+                print("[Fetch] Skipped - data is fresh (\(Int(elapsed))s old, need 30s)")
+                return
+            }
+        }
+
+        // Skip if already loading
+        if isLoading {
+            print("[Fetch] Skipped - already loading")
+            return
+        }
+
+        print("[Fetch] Starting fetch (force: \(force))")
         isLoading = true
         errorMessage = nil
 
         Task {
+            let startTime = Date()
             do {
                 let result = try await fetchAllPRs(token: token)
                 self.pullRequests = result.pullRequests
                 self.currentUserLogin = result.viewerLogin
                 self.lastUpdated = Date()
                 self.isLoading = false
+                let elapsed = Date().timeIntervalSince(startTime)
+                print("[Fetch] Completed in \(String(format: "%.2f", elapsed))s - loaded \(result.pullRequests.count) PRs")
             } catch {
                 self.errorMessage = error.localizedDescription
                 self.isLoading = false
+                print("[Fetch] Failed: \(error.localizedDescription)")
             }
         }
     }
