@@ -89,7 +89,7 @@ class SettingsWindowController {
             )
         }
 
-        let onboardingSize = NSSize(width: 720, height: 840)
+        let onboardingSize = NSSize(width: 720, height: 900)
         let settingsSize = NSSize(width: 600, height: 700)
         let windowSize = shouldShowOnboarding ? onboardingSize : settingsSize
 

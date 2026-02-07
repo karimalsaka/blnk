@@ -9,110 +9,126 @@ struct PRListView: View {
         ZStack {
             AppBackground()
 
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(alignment: .center) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack(spacing: 5) {
+            VStack(alignment: .leading, spacing: 0) {
+                // Header
+                VStack(spacing: 12) {
+                    HStack(alignment: .center, spacing: 12) {
+                        // Logo + Status
+                        HStack(spacing: 10) {
                             Image("ghost-image")
                                 .renderingMode(.template)
                                 .resizable()
                                 .scaledToFit()
-                                .foregroundStyle(.white)
-                                .frame(width: 50, height: 50)
+                                .foregroundStyle(AppTheme.textPrimary.opacity(0.85))
+                                .frame(width: 36, height: 36)
 
                             if !service.pullRequests.isEmpty {
                                 HealthSummaryView(service: service)
                             }
                         }
-                    }
 
-                    Spacer()
+                        Spacer()
 
-                    Button(action: { service.fetch(force: true) }) {
-                        HStack(spacing: 6) {
-                            if service.isLoading {
-                                AppInlineSpinner(tint: AppTheme.accent, size: 13, lineWidth: 2)
-                            } else {
-                                Image(systemName: "arrow.clockwise")
-                                    .font(.system(size: 11, weight: .semibold))
+                        // Refresh button
+                        Button(action: { service.fetch(force: true) }) {
+                            HStack(spacing: 5) {
+                                if service.isLoading {
+                                    AppInlineSpinner(tint: AppTheme.accent, size: 12, lineWidth: 1.5)
+                                } else {
+                                    Image(systemName: "arrow.clockwise")
+                                        .font(.system(size: 10, weight: .semibold))
+                                }
+                                Text("Refresh")
+                                    .font(.system(size: 10, weight: .semibold))
                             }
-                            Text("Refresh")
-                                .font(.system(size: 11, weight: .semibold, design: .rounded))
                         }
+                        .buttonStyle(RefreshButtonStyle())
+                        .opacity(service.isLoading ? 0.7 : 1)
+                        .disabled(service.isLoading)
+                        .help("Refresh")
                     }
-                    .buttonStyle(AppToolbarButtonStyle(tint: AppTheme.accent))
-                    .opacity(service.isLoading ? 0.75 : 1)
-                    .disabled(service.isLoading)
-                    .help("Refresh")
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                .padding(.bottom, 14)
 
                 // Permissions Banner
                 if !service.permissionsState.hasAllPermissions {
                     PermissionsBannerView(permissionsState: service.permissionsState)
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 10)
                 }
 
                 // Filter pills
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: 6) {
                         ForEach(PRFilter.allCases) { filter in
                             FilterPill(
                                 filter: filter,
                                 isActive: service.activeFilter == filter,
                                 count: countFor(filter)
                             ) {
-                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                withAnimation(.easeOut(duration: 0.2)) {
                                     service.activeFilter = filter
                                 }
                             }
                         }
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 2)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 1)
                 }
+                .padding(.bottom, 12)
 
                 if let error = service.errorMessage {
                     HStack(spacing: 8) {
                         Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 11))
                             .foregroundColor(AppTheme.warning)
                         Text(error)
-                            .font(.caption)
+                            .font(.system(size: 11))
                             .foregroundColor(.secondary)
                     }
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 8)
                 }
 
+                // Content area
                 VStack(spacing: 0) {
                     if service.filteredPullRequests.isEmpty && !service.isLoading && service.errorMessage == nil {
                         let isInbox = service.activeFilter == .inbox
                         VStack(spacing: 0) {
-                            AppCard {
-                                VStack(spacing: 10) {
-                                    Image(systemName: isInbox ? "checkmark.circle" : "line.3.horizontal.decrease.circle")
-                                        .font(.system(size: 36))
+                            Spacer()
+
+                            VStack(spacing: 14) {
+                                ZStack {
+                                    Circle()
+                                        .fill(isInbox ? AppTheme.successSoft : AppTheme.surface)
+                                        .frame(width: 64, height: 64)
+
+                                    Image(systemName: isInbox ? "checkmark.circle.fill" : "line.3.horizontal.decrease.circle")
+                                        .font(.system(size: 28, weight: .light))
                                         .foregroundColor(isInbox ? AppTheme.success : .secondary)
+                                }
+
+                                VStack(spacing: 4) {
                                     Text(isInbox ? "All caught up" : "No matches")
-                                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                        .font(.system(size: 15, weight: .semibold))
+                                        .foregroundColor(AppTheme.textPrimary)
+
                                     Text(isInbox ? "Nothing needs your attention" : "No PRs match this filter")
-                                        .font(.caption)
+                                        .font(.system(size: 12))
                                         .foregroundColor(.secondary)
                                 }
-                                .frame(maxWidth: .infinity)
-                                .padding(18)
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.top, 10)
+                            .padding(.horizontal, 40)
 
-                            Spacer(minLength: 0)
+                            Spacer()
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
                         ScrollView {
-                            LazyVStack(alignment: .leading, spacing: 12) {
-                                let filtered = service.filteredPullRequests
-                                ForEach(Array(filtered.enumerated()), id: \.element.rowIdentity) { _, pr in
+                            LazyVStack(alignment: .leading, spacing: 10) {
+                                ForEach(service.filteredPullRequests, id: \.rowIdentity) { pr in
                                     PRRowView(
                                         pr: pr,
                                         permissionsState: service.permissionsState,
@@ -123,56 +139,46 @@ struct PRListView: View {
                                     )
                                 }
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.top, 4)
-                            .padding(.bottom, 14)
+                            .padding(.horizontal, 20)
+                            .padding(.top, 2)
+                            .padding(.bottom, 16)
                         }
                         .scrollIndicators(.hidden)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
 
-                    AppDivider()
+                    // Subtle divider
+                    Rectangle()
+                        .fill(AppTheme.stroke)
+                        .frame(height: 1)
 
                     // Footer
-                    HStack(spacing: 12) {
+                    HStack(spacing: 10) {
                         if service.lastUpdated != nil {
-                            HStack(spacing: 6) {
-                                Image(systemName: "clock")
-                                    .font(.system(size: 10, weight: .semibold))
+                            HStack(spacing: 5) {
+                                Circle()
+                                    .fill(AppTheme.success.opacity(0.8))
+                                    .frame(width: 5, height: 5)
                                 Text("Updated \(service.lastUpdatedLabel)")
-                                    .font(.system(size: 10, weight: .semibold, design: .rounded))
-                                    .monospacedDigit()
+                                    .font(.system(size: 10))
+                                    .foregroundColor(.secondary)
                             }
-                            .foregroundColor(AppTheme.muted)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(
-                                Capsule(style: .continuous)
-                                    .fill(Color.white.opacity(0.03))
-                                    .overlay(
-                                        Capsule(style: .continuous)
-                                            .stroke(AppTheme.stroke, lineWidth: 1)
-                                    )
-                            )
                         }
-                        Spacer()
-                        Button("Settings") {
-                            showingTokenSheet = true
-                        }
-                        .buttonStyle(AppToolbarButtonStyle(tint: .secondary))
 
-                        Button("Quit") {
-                            NSApplication.shared.terminate(nil)
+                        Spacer()
+
+                        Button(action: { showingTokenSheet = true }) {
+                            Image(systemName: "gearshape")
+                                .font(.system(size: 11, weight: .medium))
                         }
-                        .buttonStyle(AppToolbarButtonStyle(tint: .secondary))
-                        .keyboardShortcut("q", modifiers: .command)
+                        .buttonStyle(FooterIconButtonStyle())
+                        .help("Settings")
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 10)
-                    .padding(.bottom, 18)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 14)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                }
+            }
         }
         .frame(width: AppLayout.menuPopoverWidth, height: AppLayout.menuPopoverHeight)
         .background(AppTheme.canvas)
@@ -226,42 +232,41 @@ struct FilterPill: View {
     let isActive: Bool
     let count: Int
     let action: () -> Void
+    @State private var isHovered = false
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 6) {
+            HStack(spacing: 5) {
                 Text(filter.rawValue)
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
-                    .foregroundColor(isActive ? .primary : .secondary)
+                    .font(.system(size: 11, weight: isActive ? .semibold : .medium))
+                    .foregroundColor(isActive ? AppTheme.textPrimary : .secondary)
+
                 if count > 0 {
                     Text("\(count)")
-                        .font(.system(size: 9, weight: .bold, design: .rounded))
+                        .font(.system(size: 9, weight: .bold))
                         .monospacedDigit()
                         .foregroundColor(isActive ? AppTheme.accent : .secondary)
-                        .padding(.horizontal, 6)
+                        .padding(.horizontal, 5)
                         .padding(.vertical, 2)
                         .background(
-                            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                .fill(isActive ? AppTheme.accentSoft : AppTheme.elevatedSurface)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                        .stroke(isActive ? AppTheme.accent.opacity(0.24) : AppTheme.stroke, lineWidth: 1)
-                                )
+                            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                .fill(isActive ? AppTheme.accentSoft : AppTheme.surface)
                         )
                 }
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 7)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
             .background(
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(isActive ? AppTheme.surface : AppTheme.canvas)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .stroke(isActive ? AppTheme.accent.opacity(0.4) : AppTheme.stroke, lineWidth: 1)
-                    )
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(isActive ? AppTheme.elevatedSurface : (isHovered ? AppTheme.surface : Color.clear))
             )
         }
         .buttonStyle(.plain)
+        .onHover { hovering in
+            withAnimation(.easeOut(duration: 0.15)) {
+                isHovered = hovering
+            }
+        }
     }
 }
 
@@ -280,9 +285,9 @@ struct HealthSummaryView: View {
     }
 
     private var summaryIcon: String {
-        if toReviewCount > 0 { return "eye.circle.fill" }
+        if toReviewCount > 0 { return "eye.fill" }
         if attentionCount > 0 { return "exclamationmark.circle.fill" }
-        if pendingCount > 0 { return "clock.circle.fill" }
+        if pendingCount > 0 { return "clock.fill" }
         return "checkmark.circle.fill"
     }
 
@@ -294,23 +299,20 @@ struct HealthSummaryView: View {
     }
 
     var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: summaryIcon)
-                .font(.system(size: 10))
-                .foregroundColor(summaryColor)
+        HStack(spacing: 5) {
+            Circle()
+                .fill(summaryColor)
+                .frame(width: 6, height: 6)
+
             Text(summaryText)
-                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                .font(.system(size: 11, weight: .medium))
                 .foregroundColor(summaryColor)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 5)
         .background(
-            Capsule(style: .continuous)
-                .fill(summaryColor.opacity(0.12))
-                .overlay(
-                    Capsule(style: .continuous)
-                        .stroke(summaryColor.opacity(0.22), lineWidth: 1)
-                )
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(summaryColor.opacity(0.1))
         )
     }
 
@@ -319,6 +321,37 @@ struct HealthSummaryView: View {
         return "\(count) need attention"
     }
 }
+
+// MARK: - Button Styles
+
+private struct RefreshButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundColor(AppTheme.accent.opacity(configuration.isPressed ? 0.7 : 0.9))
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(AppTheme.accentSoft.opacity(configuration.isPressed ? 0.8 : 0.6))
+            )
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+    }
+}
+
+private struct FooterIconButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundColor(.secondary.opacity(configuration.isPressed ? 0.5 : 0.8))
+            .frame(width: 28, height: 28)
+            .background(
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(AppTheme.surface.opacity(configuration.isPressed ? 1 : 0))
+            )
+            .scaleEffect(configuration.isPressed ? 0.95 : 1)
+    }
+}
+
+// MARK: - Previews
 
 struct PRListView_Previews: PreviewProvider {
     static var previews: some View {

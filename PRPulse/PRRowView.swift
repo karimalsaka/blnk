@@ -117,6 +117,16 @@ struct PRRowView: View {
                         }
 
                         Spacer()
+
+                        if permissionsState.canReadComments && displayCommentCount > 0 {
+                            HStack(spacing: 4) {
+                                Image(systemName: "bubble.left.fill")
+                                    .font(.system(size: 9))
+                                Text("\(displayCommentCount)")
+                                    .font(.system(size: 10, weight: .medium))
+                            }
+                            .foregroundColor(.secondary)
+                        }
                     }
 
                     Text(pr.title)
@@ -139,17 +149,6 @@ struct PRRowView: View {
                                 text: pr.reviewState.label,
                                 color: reviewColor(pr.reviewState)
                             )
-                        }
-
-                        if permissionsState.canReadComments && displayCommentCount > 0 {
-                            HStack(spacing: 4) {
-                                Image(systemName: "bubble.left.fill")
-                                    .font(.system(size: 9))
-                                Text("\(displayCommentCount)")
-                                    .font(.caption2)
-                                    .fontWeight(.medium)
-                            }
-                            .foregroundColor(.secondary)
                         }
                     }
 
