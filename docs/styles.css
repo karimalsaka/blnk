@@ -192,11 +192,10 @@ img {
 .btn-primary {
   background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   color: #fff;
-  box-shadow: 0 4px 16px rgba(97, 117, 235, 0.3);
 }
 
 .btn-primary:hover {
-  box-shadow: 0 6px 24px rgba(97, 117, 235, 0.4);
+  box-shadow: 0 4px 12px rgba(97, 117, 235, 0.25);
 }
 
 .btn-secondary {
