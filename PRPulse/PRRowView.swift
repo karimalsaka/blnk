@@ -106,17 +106,11 @@ struct PRRowView: View {
                             )
                         }
 
-                        if pr.isDraft {
-                            Text("DRAFT")
-                                .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(.secondary)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.secondary.opacity(0.10))
-                                .cornerRadius(999)
-                        }
-
                         Spacer()
+
+                        Text("Opened \(relativeDate(pr.createdAt))")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(.secondary)
 
                         if permissionsState.canReadComments && displayCommentCount > 0 {
                             HStack(spacing: 4) {
@@ -126,6 +120,7 @@ struct PRRowView: View {
                                     .font(.system(size: 10, weight: .medium))
                             }
                             .foregroundColor(.secondary)
+                            .padding(.leading, 4)
                         }
                     }
 
@@ -359,6 +354,33 @@ struct PRRowView: View {
                 }
             }
         }
+    }
+
+    private func relativeDate(_ date: Date) -> String {
+        let now = Date()
+        let seconds = Int(now.timeIntervalSince(date))
+
+        if seconds < 60 {
+            return "just now"
+        }
+        let minutes = seconds / 60
+        if minutes < 60 {
+            return "\(minutes)m ago"
+        }
+        let hours = minutes / 60
+        if hours < 24 {
+            return "\(hours)h ago"
+        }
+        let days = hours / 24
+        if days < 30 {
+            return "\(days)d ago"
+        }
+        let months = days / 30
+        if months < 12 {
+            return "\(months)mo ago"
+        }
+        let years = months / 12
+        return "\(years)y ago"
     }
 
     private func ciColor(_ status: CIStatus) -> Color {

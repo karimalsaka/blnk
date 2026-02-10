@@ -176,6 +176,7 @@ final class GitHubService: ObservableObject {
                 title
                 url
                 isDraft
+                createdAt
                 updatedAt
                 author {
                   login
@@ -258,6 +259,7 @@ final class GitHubService: ObservableObject {
                 title
                 url
                 isDraft
+                createdAt
                 updatedAt
                 author {
                   login
@@ -378,6 +380,8 @@ final class GitHubService: ObservableObject {
               let repoFullName = node.repository?.nameWithOwner else { return nil }
 
         let isDraft = node.isDraft ?? false
+        let createdAtStr = node.createdAt ?? ""
+        let createdAt = parseDate(createdAtStr) ?? Date()
         let updatedAtStr = node.updatedAt ?? ""
         let updatedAt = parseDate(updatedAtStr) ?? Date()
         let authorLogin = node.author?.login
@@ -573,6 +577,7 @@ final class GitHubService: ObservableObject {
             authorLogin: authorLogin,
             htmlURL: url,
             headSHA: "",
+            createdAt: createdAt,
             updatedAt: updatedAt,
             commentCount: commentCount,
             isDraft: isDraft,
@@ -638,7 +643,7 @@ final class GitHubService: ObservableObject {
             PullRequest(
             id: "acme/frontend#142", number: 142, title: "feat: Add dark mode support across all components",
                 repoFullName: "acme/frontend", authorLogin: "sarah", htmlURL: URL(string: "https://github.com")!,
-                headSHA: "abc123", updatedAt: Date().addingTimeInterval(-3600), commentCount: 3, isDraft: false,
+                headSHA: "abc123", createdAt: Date().addingTimeInterval(-86400 * 2), updatedAt: Date().addingTimeInterval(-3600), commentCount: 3, isDraft: false,
                 ciStatus: .success, failedChecks: [], reviewState: .approved,
                 hasConflicts: false,
                 recentComments: [
@@ -650,7 +655,7 @@ final class GitHubService: ObservableObject {
             PullRequest(
                 id: "acme/backend-api#87", number: 87, title: "fix: Resolve memory leak in WebSocket connection handler",
                 repoFullName: "acme/backend-api", authorLogin: "alex", htmlURL: URL(string: "https://github.com")!,
-                headSHA: "def456", updatedAt: Date().addingTimeInterval(-7200), commentCount: 5, isDraft: false,
+                headSHA: "def456", createdAt: Date().addingTimeInterval(-86400 * 5), updatedAt: Date().addingTimeInterval(-7200), commentCount: 5, isDraft: false,
                 ciStatus: .failure, failedChecks: ["Build / test-linux", "CI / integration-tests"], reviewState: .changesRequested,
                 hasConflicts: true,
                 recentComments: [
@@ -661,14 +666,14 @@ final class GitHubService: ObservableObject {
                         id: "thread-1",
                         comments: [
                             PRComment(id: "mock-3a", author: "jordan", body: "This block looks suspicious. Can we add a test for this path?", createdAt: Date().addingTimeInterval(-14400), url: URL(string: "https://github.com")),
-                            PRComment(id: "mock-3b", author: "karim", body: "Good catch. I’ll add coverage and re-run the suite.", createdAt: Date().addingTimeInterval(-10800), url: URL(string: "https://github.com"))
+                            PRComment(id: "mock-3b", author: "karim", body: "Good catch. I'll add coverage and re-run the suite.", createdAt: Date().addingTimeInterval(-10800), url: URL(string: "https://github.com"))
                         ]
                     ),
                     PRCommentThread(
                         id: "thread-2",
                         comments: [
-                            PRComment(id: "mock-3c", author: "alex", body: "We should also ensure the timeout doesn’t leak sockets.", createdAt: Date().addingTimeInterval(-9000), url: URL(string: "https://github.com")),
-                            PRComment(id: "mock-3d", author: "sarah", body: "Agreed — I’ll add a regression test before merge.", createdAt: Date().addingTimeInterval(-7200), url: URL(string: "https://github.com"))
+                            PRComment(id: "mock-3c", author: "alex", body: "We should also ensure the timeout doesn't leak sockets.", createdAt: Date().addingTimeInterval(-9000), url: URL(string: "https://github.com")),
+                            PRComment(id: "mock-3d", author: "sarah", body: "Agreed — I'll add a regression test before merge.", createdAt: Date().addingTimeInterval(-7200), url: URL(string: "https://github.com"))
                         ]
                     )
                 ]
@@ -676,14 +681,14 @@ final class GitHubService: ObservableObject {
             PullRequest(
                 id: "acme/infrastructure#201", number: 201, title: "chore: Bump dependencies and fix security advisories",
                 repoFullName: "acme/infrastructure", authorLogin: "dana", htmlURL: URL(string: "https://github.com")!,
-                headSHA: "ghi789", updatedAt: Date().addingTimeInterval(-10800), commentCount: 0, isDraft: false,
+                headSHA: "ghi789", createdAt: Date().addingTimeInterval(-86400), updatedAt: Date().addingTimeInterval(-10800), commentCount: 0, isDraft: false,
                 ciStatus: .pending, failedChecks: [], reviewState: .pending,
                 hasConflicts: false, recentComments: []
             ),
             PullRequest(
                 id: "acme/frontend#55", number: 55, title: "WIP: Experiment with new caching strategy for GraphQL queries",
                 repoFullName: "acme/frontend", authorLogin: "karim", htmlURL: URL(string: "https://github.com")!,
-                headSHA: "jkl012", updatedAt: Date().addingTimeInterval(-86400), commentCount: 1, isDraft: true,
+                headSHA: "jkl012", createdAt: Date().addingTimeInterval(-86400 * 7), updatedAt: Date().addingTimeInterval(-86400), commentCount: 1, isDraft: true,
                 ciStatus: .unknown, failedChecks: [], reviewState: .unknown,
                 hasConflicts: false,
                 recentComments: [
@@ -693,7 +698,7 @@ final class GitHubService: ObservableObject {
             PullRequest(
                 id: "acme/auth-service#33", number: 33, title: "feat: Add OAuth2 PKCE flow for mobile clients",
                 repoFullName: "acme/auth-service", authorLogin: "karim", htmlURL: URL(string: "https://github.com")!,
-                headSHA: "mno345", updatedAt: Date().addingTimeInterval(-600), commentCount: 8, isDraft: false,
+                headSHA: "mno345", createdAt: Date().addingTimeInterval(-3600), updatedAt: Date().addingTimeInterval(-600), commentCount: 8, isDraft: false,
                 ciStatus: .success, failedChecks: [], reviewState: .approved,
                 hasConflicts: false,
                 recentComments: [
@@ -703,7 +708,7 @@ final class GitHubService: ObservableObject {
             PullRequest(
                 id: "acme/backend-api#12", number: 12, title: "fix: Rate limiter bypassed when API key rotates mid-request",
                 repoFullName: "acme/backend-api", authorLogin: "jordan", htmlURL: URL(string: "https://github.com")!,
-                headSHA: "pqr678", updatedAt: Date().addingTimeInterval(-5400), commentCount: 2, isDraft: false,
+                headSHA: "pqr678", createdAt: Date().addingTimeInterval(-86400 * 3), updatedAt: Date().addingTimeInterval(-5400), commentCount: 2, isDraft: false,
                 ciStatus: .failure, failedChecks: ["CI / lint"], reviewState: .pending,
                 hasConflicts: false,
                 recentComments: [

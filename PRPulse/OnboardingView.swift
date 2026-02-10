@@ -726,7 +726,8 @@ extension OnboardingView {
         isReviewedByMe: Bool = false,
         hasMyComment: Bool = false,
         recentComments: [PRComment] = [],
-        reviewThreads: [PRCommentThread] = []
+        reviewThreads: [PRCommentThread] = [],
+        createdDaysAgo: Double = 1
     ) -> PullRequest {
         PullRequest(
             id: "\(repoFullName)#\(number)",
@@ -736,6 +737,7 @@ extension OnboardingView {
             authorLogin: authorLogin,
             htmlURL: URL(string: "https://github.com/\(repoFullName)/pull/\(number)")!,
             headSHA: "",
+            createdAt: Date().addingTimeInterval(-86400 * createdDaysAgo),
             updatedAt: Date(),
             commentCount: recentComments.count + reviewThreads.reduce(0) { $0 + $1.comments.count },
             isDraft: isDraft,

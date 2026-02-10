@@ -85,6 +85,7 @@ struct PullRequest: Identifiable, Equatable {
     let authorLogin: String?
     let htmlURL: URL
     let headSHA: String
+    let createdAt: Date
     let updatedAt: Date
     let commentCount: Int
     let isDraft: Bool
@@ -295,6 +296,7 @@ struct GitHubGraphQLPullRequestResponse: Decodable {
     let title: String?
     let url: String?
     let isDraft: Bool?
+    let createdAt: String?
     let updatedAt: String?
     let author: GitHubGraphQLUserResponse?
     let mergeable: String?
