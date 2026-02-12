@@ -20,7 +20,7 @@ struct PRListView: View {
                                 .resizable()
                                 .scaledToFit()
                                 .foregroundStyle(AppTheme.textPrimary.opacity(0.85))
-                                .frame(width: 36, height: 36)
+                                .frame(width: 44, height: 44)
 
                             if !service.pullRequests.isEmpty {
                                 HealthSummaryView(service: service)
@@ -50,7 +50,7 @@ struct PRListView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 20)
-                .padding(.bottom, 14)
+                .padding(.bottom, 8)
 
                 // Permissions Banner
                 if !service.permissionsState.hasAllPermissions {

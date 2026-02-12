@@ -368,7 +368,7 @@ final class GitHubService: ObservableObject {
         }
 
         var results = Array(byKey.values)
-        results.sort { $0.updatedAt > $1.updatedAt }
+        results.sort { $0.createdAt > $1.createdAt }
         return (pullRequests: results, viewerLogin: viewerLogin)
     }
 
