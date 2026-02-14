@@ -42,7 +42,6 @@
 
     html, body {
       height: 100%;
-      overflow: hidden;
     }
 
     body {
@@ -54,16 +53,10 @@
 
     /* Page container */
     .page {
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
       position: relative;
-      background-image:
-        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-      background-size: 60px 60px;
-      background-position: center center;
     }
 
     /* Animated background orbs */
@@ -360,45 +353,27 @@
 
     /* Screenshot area */
     .screenshot-area {
-      flex: 1;
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      overflow: hidden;
-      min-height: 0;
       position: relative;
       z-index: 1;
     }
 
     .screenshot {
       width: min(520px, 90vw);
-      max-height: 50vh;
-      overflow: hidden;
       position: relative;
       opacity: 0;
       animation: fadeUp 0.8s ease 0.4s forwards;
+      padding-bottom: 40px;
     }
 
-    .screenshot::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 120px;
-      background: linear-gradient(to top, var(--bg) 0%, transparent 100%);
-      pointer-events: none;
-    }
 
     .screenshot img {
       width: 100%;
       height: auto;
       display: block;
       border-radius: 16px;
-      box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.08),
-        0 20px 60px -20px rgba(0, 0, 0, 0.7),
-        0 0 100px -30px rgba(212, 255, 0, 0.15);
     }
 
     /* Animations */
