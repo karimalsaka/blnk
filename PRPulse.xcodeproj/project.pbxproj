@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		999D4EE52F40951300A33906 /* blnk_icon_2.icon in Resources */ = {isa = PBXBuildFile; fileRef = 999D4EE42F40951300A33906 /* blnk_icon_2.icon */; };
 		99D0D2142F296D1000BB6A81 /* PRPulse/TokenValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D2132F296D1000BB6A81 /* PRPulse/TokenValidationService.swift */; };
 		99D0D2152F296D1000BB6A81 /* PRPulse/OnboardingStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D20C2F296D1000BB6A81 /* PRPulse/OnboardingStepView.swift */; };
 		99D0D2162F296D1000BB6A81 /* PRPulse/OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D0D20D2F296D1000BB6A81 /* PRPulse/OnboardingView.swift */; };
@@ -35,6 +36,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		999D4EE42F40951300A33906 /* blnk_icon_2.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = blnk_icon_2.icon; sourceTree = "<group>"; };
 		99D0D20C2F296D1000BB6A81 /* PRPulse/OnboardingStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/OnboardingStepView.swift; sourceTree = "<group>"; };
 		99D0D20D2F296D1000BB6A81 /* PRPulse/OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/OnboardingView.swift; sourceTree = "<group>"; };
 		99D0D20E2F296D1000BB6A81 /* PRPulse/OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRPulse/OnboardingViewModel.swift; sourceTree = "<group>"; };
@@ -54,7 +56,7 @@
 		A2000006 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A2000007 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A2000008 /* PRPulse.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PRPulse.entitlements; sourceTree = "<group>"; };
-		A2000009 /* PRPulse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PRPulse.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2000009 /* PRPulse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = PRPulse.app; path = blnk.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2000010 /* NotificationPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPreferences.swift; sourceTree = "<group>"; };
 		A2000011 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		A2000012 /* CommentRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentRow.swift; sourceTree = "<group>"; };
@@ -98,6 +100,7 @@
 		A4000002 /* PRPulse */ = {
 			isa = PBXGroup;
 			children = (
+				999D4EE42F40951300A33906 /* blnk_icon_2.icon */,
 				A2000001 /* PRPulseApp.swift */,
 				A2000002 /* GitHubService.swift */,
 				A2000003 /* Models.swift */,
@@ -184,6 +187,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				999D4EE52F40951300A33906 /* blnk_icon_2.icon in Resources */,
 				A1000006 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
