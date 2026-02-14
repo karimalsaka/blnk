@@ -3,128 +3,261 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>blnk — Pull Requests at a Glance</title>
-  <meta name="description" content="blnk keeps pull requests in focus with instant status, review requests, and conversations in a compact macOS view.">
-  <link rel="stylesheet" href="styles.css">
+  <title>blnk — PRs at a Glance</title>
+  <meta name="description" content="GitHub PR status, reviews, and threads from your menu bar.">
   <link rel="icon" type="image/png" href="assets/200x200.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #000000;
+      --lime: #d4ff00;
+      --text: #ffffff;
+      --text-dim: rgba(255, 255, 255, 0.7);
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Nav */
+    nav {
+      flex-shrink: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px clamp(24px, 5vw, 60px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+
+    .brand img {
+      height: 36px;
+      width: auto;
+      filter: brightness(0) invert(1);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .nav-right a {
+      font-size: 14px;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-right a:hover {
+      color: var(--text);
+    }
+
+    .nav-cta {
+      background: var(--lime) !important;
+      color: #000 !important;
+      padding: 10px 20px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    /* Main content area */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* Hero */
+    .hero {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: clamp(40px, 8vh, 80px) 24px clamp(16px, 3vh, 24px);
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      margin-top: clamp(32px, 4vh, 48px);
+      margin-bottom: clamp(24px, 3vh, 40px);
+    }
+
+    .btn-primary {
+      background: var(--lime);
+      color: #000;
+      padding: 14px 28px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-dim);
+      padding: 14px 28px;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      border: 1px solid var(--text-dim);
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      color: var(--text);
+      border-color: var(--text);
+    }
+
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(40px, 10vw, 140px);
+      line-height: 0.9;
+      letter-spacing: 0.02em;
+      margin-bottom: clamp(8px, 1.5vh, 16px);
+    }
+
+    h1 .white {
+      color: var(--text);
+    }
+
+    h1 .lime {
+      color: var(--lime);
+    }
+
+    .tagline {
+      font-size: clamp(14px, 1.8vw, 19px);
+      color: var(--text-dim);
+      line-height: 1.5;
+      max-width: 1000px;
+    }
+
+    /* Screenshot area */
+    .screenshot-area {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .screenshot {
+      width: min(520px, 90vw);
+    }
+
+    .screenshot img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 16px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .screenshot {
+        width: min(440px, 92vw);
+      }
+    }
+
+    @media (max-width: 500px) {
+      .screenshot {
+        width: 95vw;
+      }
+
+      .screenshot img {
+        border-radius: 12px;
+      }
+
+      .cta-buttons {
+        flex-direction: column;
+        width: 100%;
+        padding: 0 20px;
+      }
+
+      .btn-primary, .btn-secondary {
+        text-align: center;
+        padding: 12px 24px;
+        font-size: 13px;
+      }
+    }
+
+    /* Short screens */
+    @media (max-height: 550px) {
+      .hero {
+        padding-top: 12px;
+        padding-bottom: 12px;
+      }
+
+      .tagline {
+        display: none;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-    <nav class="nav">
-      <a href="/" class="brand">
-        <img src="assets/200x200.png" alt="" class="brand-logo">
-        <span class="brand-name">blnk</span>
+  <div class="page">
+    <nav>
+      <a href="./" class="brand">
+        <img src="assets/200x200.png" alt="blnk">
       </a>
-      <div class="nav-links">
-        <a href="#features">Benefits</a>
-        <a href="#setup">Setup</a>
-        <a href="#security">Security</a>
+      <div class="nav-right">
+        <a href="https://github.com/karimalsaka/PRPulse">GitHub</a>
+        <a href="https://github.com/karimalsaka/PRPulse/releases/download/v0.1.0/blnk.dmg" class="nav-cta">Download</a>
       </div>
     </nav>
 
-    <main>
-      <section class="hero">
-        <div class="hero-content reveal" style="--delay: 0s">
-          <div class="hero-badge">Menu bar app for macOS</div>
-          <h1>Everything you need, before you <span>blink.</span></h1>
-          <p class="hero-description">GitHub is your system of record, not your fastest view. blnk surfaces every PR's status, reviews, and threads from your menu bar.</p>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="https://github.com/karimalsaka/PRPulse/releases/download/v0.1.0/blnk.dmg">Download for Mac</a>
-            <a class="btn btn-secondary" href="#features">Learn more</a>
-          </div>
-          <div class="hero-features">
-            <div class="hero-feature">Always-visible summary of what needs action</div>
-            <div class="hero-feature">Instant triage across all your repos</div>
-            <div class="hero-feature">Read threads without opening a browser</div>
-          </div>
+    <div class="main">
+      <div class="hero">
+        <h1><span class="white">PULL REQUESTS</span><br><span class="lime">BEFORE YOU BLINK.</span></h1>
+        <p class="tagline">GitHub PR status, reviews, and threads from your menu bar.<br>See what needs attention without opening a browser.</p>
+        <div class="cta-buttons">
+          <a href="https://github.com/karimalsaka/PRPulse/releases/download/v0.1.0/blnk.dmg" class="btn-primary">Download for Mac</a>
+          <a href="https://github.com/karimalsaka/PRPulse" class="btn-secondary">GitHub</a>
         </div>
-        <div class="hero-visual reveal" style="--delay: 0.1s">
-          <div class="screenshot-wrapper">
-            <img src="assets/screenshot-hero.png" alt="blnk app showing pull request overview">
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="features">
-        <div class="section-header reveal" style="--delay: 0s">
-          <h2>What you get</h2>
-          <p>Focused signal for the PRs you own or review.</p>
-        </div>
-        <div class="features-grid">
-          <article class="feature-card reveal" style="--delay: 0.05s">
-            <h3>Needs attention, fast</h3>
-            <p>See failing CI, merge conflicts, or change requests before they block release.</p>
-          </article>
-          <article class="feature-card reveal" style="--delay: 0.1s">
-            <h3>Review requests, centralized</h3>
-            <p>Every requested review across orgs in one list.</p>
-          </article>
-          <article class="feature-card reveal" style="--delay: 0.15s">
-            <h3>Conversation context</h3>
-            <p>Read recent discussion and inline threads without opening a browser.</p>
-          </article>
-          <article class="feature-card reveal" style="--delay: 0.2s">
-            <h3>My PRs, always current</h3>
-            <p>Track your own PRs with approvals, feedback, and status updates.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="section" id="setup">
-        <div class="section-header reveal" style="--delay: 0s">
-          <h2>Setup</h2>
-          <p>Two quick steps to get started.</p>
-        </div>
-        <div class="steps-grid">
-          <div class="step-card reveal" style="--delay: 0.05s">
-            <div class="step-number">1</div>
-            <h3>Create a GitHub token</h3>
-            <p>Generate a read-only token with access to pull requests, CI status, reviews, and comments.</p>
-          </div>
-          <div class="step-card reveal" style="--delay: 0.1s">
-            <div class="step-number">2</div>
-            <h3>Paste into blnk</h3>
-            <p>Enter your token and your PRs appear instantly in the menu bar.</p>
-          </div>
-          <div class="step-card reveal" style="--delay: 0.15s">
-            <div class="step-number">3</div>
-            <h3>Notifications</h3>
-            <p>Coming soon.</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="security">
-        <div class="section-header reveal" style="--delay: 0s">
-          <h2>Security</h2>
-          <p>blnk talks directly to GitHub and keeps everything local.</p>
-        </div>
-        <div class="permissions-grid">
-          <div class="permission-card reveal" style="--delay: 0.05s">
-            <div class="indicator">Secure</div>
-            <h3>Read-only scopes</h3>
-            <p>Pull requests, CI status, reviews, comments. No write access needed.</p>
-          </div>
-          <div class="permission-card reveal" style="--delay: 0.1s">
-            <div class="indicator">Local</div>
-            <h3>Keychain storage</h3>
-            <p>Your token stays on your Mac in the system keychain.</p>
-          </div>
-          <div class="permission-card reveal" style="--delay: 0.15s">
-            <div class="indicator">Direct</div>
-            <h3>No middleman</h3>
-            <p>Direct GraphQL calls to GitHub's API. No proxy servers.</p>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer class="footer">
-      <div class="footer-brand">
-        <img src="assets/200x200.png" alt="">
-        <span>Built for teams who live in pull requests.</span>
       </div>
-    </footer>
+
+      <div class="screenshot-area">
+        <div class="screenshot">
+          <img src="assets/screenshot-hero.png" alt="blnk interface">
+        </div>
+      </div>
+    </div>
   </div>
 </body>
 </html>

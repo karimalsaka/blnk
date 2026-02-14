@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>blnk — Features, Setup & Security</title>
+  <meta name="description" content="Learn about blnk features, setup guide, and security.">
+  <link rel="icon" type="image/png" href="../assets/200x200.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #000000;
+      --bg-elevated: #0a0a0a;
+      --lime: #d4ff00;
+      --lime-dim: rgba(212, 255, 0, 0.15);
+      --text: #ffffff;
+      --text-dim: rgba(255, 255, 255, 0.6);
+      --border: rgba(255, 255, 255, 0.08);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    /* Nav */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px clamp(24px, 5vw, 60px);
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(20px);
+      z-index: 100;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+
+    .brand img {
+      height: 32px;
+      width: auto;
+      filter: brightness(0) invert(1);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-right a {
+      font-size: 14px;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-right a:hover {
+      color: var(--text);
+    }
+
+    .nav-cta {
+      background: var(--lime) !important;
+      color: #000 !important;
+      padding: 10px 24px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      padding: 140px clamp(24px, 5vw, 80px) 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 80%;
+      height: 100%;
+      background: radial-gradient(ellipse at center, rgba(212, 255, 0, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--lime);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards;
+    }
+
+    .hero-label::before {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--lime);
+    }
+
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(48px, 8vw, 100px);
+      line-height: 0.9;
+      letter-spacing: 0.02em;
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.1s forwards;
+    }
+
+    .hero h1 .lime {
+      color: var(--lime);
+      display: block;
+    }
+
+    .hero-description {
+      font-size: 18px;
+      line-height: 1.7;
+      color: var(--text-dim);
+      max-width: 440px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.2s forwards;
+    }
+
+    .hero-screenshot {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.3s forwards;
+    }
+
+    .hero-screenshot img {
+      width: 100%;
+      max-width: 520px;
+      height: auto;
+      border-radius: 16px;
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        0 40px 80px -20px rgba(0, 0, 0, 0.8),
+        0 0 120px -40px rgba(212, 255, 0, 0.3);
+    }
+
+    /* Section styles */
+    section {
+      padding: clamp(80px, 12vh, 140px) clamp(24px, 5vw, 80px);
+      position: relative;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--lime);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .section-label span {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    .section-number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(120px, 20vw, 240px);
+      line-height: 0.8;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(255, 255, 255, 0.08);
+      position: absolute;
+      right: clamp(24px, 5vw, 80px);
+      top: clamp(60px, 10vh, 100px);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(40px, 6vw, 72px);
+      line-height: 1;
+      margin-bottom: 20px;
+      letter-spacing: 0.02em;
+    }
+
+    .section-subtitle {
+      font-size: 16px;
+      color: var(--text-dim);
+      max-width: 500px;
+      line-height: 1.6;
+      margin-bottom: 60px;
+    }
+
+    /* Features Section */
+    #features {
+      background: linear-gradient(180deg, var(--bg) 0%, var(--bg-elevated) 100%);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      max-width: 900px;
+    }
+
+    .feature-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(212, 255, 0, 0.5), transparent);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(212, 255, 0, 0.2);
+      transform: translateY(-4px);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--lime-dim);
+      border: 1px solid rgba(212, 255, 0, 0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      font-size: 20px;
+    }
+
+    .feature-card h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* Setup Section */
+    #setup {
+      background: var(--bg-elevated);
+    }
+
+    .setup-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      max-width: 1000px;
+    }
+
+    .setup-step {
+      position: relative;
+      padding: 40px 32px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 100%);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+    }
+
+    .setup-step::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: -32px;
+      width: 32px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    .setup-step:last-child::after {
+      display: none;
+    }
+
+    .step-number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 64px;
+      line-height: 1;
+      color: var(--lime);
+      margin-bottom: 20px;
+      opacity: 0.8;
+    }
+
+    .setup-step h3 {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .setup-step p {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    .setup-step .coming-soon {
+      display: inline-block;
+      margin-top: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--lime);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      background: var(--lime-dim);
+      border-radius: 4px;
+    }
+
+    /* Security Section */
+    #security {
+      background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg) 100%);
+    }
+
+    .security-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 80px;
+      align-items: center;
+      max-width: 1100px;
+    }
+
+    .security-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .security-visual {
+      position: relative;
+    }
+
+    .security-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .security-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 32px;
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .security-card:hover {
+      border-color: rgba(212, 255, 0, 0.15);
+      background: linear-gradient(135deg, rgba(212, 255, 0, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+    }
+
+    .security-indicator {
+      width: 40px;
+      height: 40px;
+      background: var(--lime-dim);
+      border: 1px solid rgba(212, 255, 0, 0.3);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .security-indicator::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--lime);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--lime);
+    }
+
+    .security-card-content h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .security-card-content p {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    footer {
+      padding: 60px clamp(24px, 5vw, 80px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .footer-brand img {
+      height: 24px;
+      width: auto;
+      filter: brightness(0) invert(1);
+      opacity: 0.5;
+    }
+
+    .footer-brand span {
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 32px;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--text);
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+        gap: 60px;
+        min-height: auto;
+        padding-top: 120px;
+      }
+
+      .hero-screenshot {
+        order: -1;
+      }
+
+      .hero-screenshot img {
+        max-width: 400px;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .setup-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .setup-step::after {
+        display: none;
+      }
+
+      .security-wrapper {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .section-number {
+        display: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .nav-right a:not(.nav-cta) {
+        display: none;
+      }
+
+      .hero h1 {
+        font-size: 48px;
+      }
+
+      .hero-description {
+        font-size: 16px;
+      }
+
+      section {
+        padding: 60px 20px;
+      }
+
+      .feature-card {
+        padding: 28px;
+      }
+
+      .setup-step {
+        padding: 28px 24px;
+      }
+
+      footer {
+        flex-direction: column;
+        gap: 24px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="../" class="brand">
+      <img src="../assets/200x200.png" alt="blnk">
+    </a>
+    <div class="nav-right">
+      <a href="https://github.com/karimalsaka/PRPulse">GitHub</a>
+      <a href="#features">Features</a>
+      <a href="https://github.com/karimalsaka/PRPulse/releases/download/v0.1.0/blnk.dmg" class="nav-cta">Download</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-label"><span>Learn More</span></div>
+      <h1>EVERYTHING YOU NEED,<span class="lime">BEFORE YOU BLINK.</span></h1>
+      <p class="hero-description">GitHub is your system of record, not your fastest view. blnk surfaces every PR's status, reviews, and threads from your menu bar — so you never miss what matters.</p>
+    </div>
+    <div class="hero-screenshot">
+      <img src="../assets/screenshot-hero.png" alt="blnk interface showing PR management">
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features">
+    <div class="section-number">01</div>
+    <div class="section-label"><span>01</span> Features</div>
+    <h2 class="section-title fade-in">WHAT YOU GET</h2>
+    <p class="section-subtitle fade-in">Focused signal for the PRs you own or review.</p>
+
+    <div class="features-grid">
+      <article class="feature-card fade-in">
+        <div class="feature-icon">⚡</div>
+        <h3>Needs attention, fast</h3>
+        <p>See failing CI, merge conflicts, or change requests before they block release.</p>
+      </article>
+      <article class="feature-card fade-in">
+        <div class="feature-icon">📥</div>
+        <h3>Review requests, centralized</h3>
+        <p>Every requested review across orgs in one list. No more hunting through notifications.</p>
+      </article>
+      <article class="feature-card fade-in">
+        <div class="feature-icon">💬</div>
+        <h3>Conversation context</h3>
+        <p>Read recent discussion and inline threads without opening a browser.</p>
+      </article>
+      <article class="feature-card fade-in">
+        <div class="feature-icon">📊</div>
+        <h3>My PRs, always current</h3>
+        <p>Track your own PRs with approvals, feedback, and status updates in real-time.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- Setup -->
+  <section id="setup">
+    <div class="section-number">02</div>
+    <div class="section-label"><span>02</span> Setup</div>
+    <h2 class="section-title fade-in">GET STARTED</h2>
+    <p class="section-subtitle fade-in">Two steps to PR clarity.</p>
+
+    <div class="setup-grid">
+      <div class="setup-step fade-in">
+        <div class="step-number">1</div>
+        <h3>Create a GitHub token</h3>
+        <p>Generate a read-only token with access to pull requests, CI status, reviews, and comments.</p>
+      </div>
+      <div class="setup-step fade-in">
+        <div class="step-number">2</div>
+        <h3>Paste into blnk</h3>
+        <p>Enter your token and your PRs appear instantly in the menu bar. That's it.</p>
+      </div>
+      <div class="setup-step fade-in">
+        <div class="step-number">3</div>
+        <h3>Notifications</h3>
+        <p>Get notified when PRs need your attention.</p>
+        <span class="coming-soon">Coming soon</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Security -->
+  <section id="security">
+    <div class="section-number">03</div>
+    <div class="security-wrapper">
+      <div class="security-content">
+        <div class="section-label"><span>03</span> Security</div>
+        <h2 class="section-title fade-in">YOUR DATA,<br>YOUR MACHINE.</h2>
+        <p class="section-subtitle fade-in">blnk talks directly to GitHub and keeps everything local. No middlemen, no servers, no tracking.</p>
+      </div>
+      <div class="security-visual">
+        <div class="security-grid">
+          <div class="security-card fade-in">
+            <div class="security-indicator"></div>
+            <div class="security-card-content">
+              <h3>Read-only scopes</h3>
+              <p>Pull requests, CI status, reviews, comments. No write access needed or requested.</p>
+            </div>
+          </div>
+          <div class="security-card fade-in">
+            <div class="security-indicator"></div>
+            <div class="security-card-content">
+              <h3>Keychain storage</h3>
+              <p>Your token stays on your Mac in the system keychain. Encrypted and secure.</p>
+            </div>
+          </div>
+          <div class="security-card fade-in">
+            <div class="security-indicator"></div>
+            <div class="security-card-content">
+              <h3>No middleman</h3>
+              <p>Direct GraphQL calls to GitHub's API. Zero proxy servers, zero analytics, zero BS.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-brand">
+      <img src="../assets/200x200.png" alt="">
+      <span>Built for teams who live in pull requests.</span>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/karimalsaka/PRPulse">GitHub</a>
+      <a href="https://github.com/karimalsaka/PRPulse/releases/download/v0.1.0/blnk.dmg">Download</a>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll-triggered fade-in animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, index) => {
+        if (entry.isIntersecting) {
+          // Stagger the animations
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+          }, index * 100);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in').forEach(el => {
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>

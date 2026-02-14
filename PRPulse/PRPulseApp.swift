@@ -127,8 +127,8 @@ struct MenuBarIcon: View {
 
     var body: some View {
         HStack(spacing: 2) {
-            Image(systemName: iconName)
-                .symbolRenderingMode(.monochrome)
+            Image("MenuBarIcon")
+                .renderingMode(.template)
                 .foregroundColor(iconColor)
             if count > 0 {
                 Text("\(count)")
@@ -137,10 +137,6 @@ struct MenuBarIcon: View {
                     .foregroundStyle(.primary)
             }
         }
-    }
-
-    private var iconName: String {
-        "arrow.triangle.pull"
     }
 
     private var iconColor: Color {
