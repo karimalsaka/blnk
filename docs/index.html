@@ -22,8 +22,8 @@
       --lime-dim: rgba(212, 255, 0, 0.08);
       --text: #ffffff;
       --text-dim: rgba(255, 255, 255, 0.5);
-      --text-muted: rgba(255, 255, 255, 0.25);
-      --border: rgba(255, 255, 255, 0.06);
+      --text-muted: rgba(255, 255, 255, 0.3);
+      --border: rgba(255, 255, 255, 0.08);
     }
 
     html, body {
@@ -38,7 +38,7 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Subtle grid background */
+    /* Page container */
     .page {
       height: 100vh;
       display: flex;
@@ -46,22 +46,81 @@
       overflow: hidden;
       position: relative;
       background-image:
-        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-      background-size: 80px 80px;
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 60px 60px;
       background-position: center center;
     }
 
-    /* Radial glow behind hero */
+    /* Animated background orbs */
+    .bg-orbs {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.4;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    .orb-1 {
+      width: 300px;
+      height: 300px;
+      background: rgba(212, 255, 0, 0.08);
+      top: 10%;
+      left: 20%;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 250px;
+      height: 250px;
+      background: rgba(212, 255, 0, 0.06);
+      top: 60%;
+      right: 15%;
+      animation-delay: -7s;
+    }
+
+    .orb-3 {
+      width: 200px;
+      height: 200px;
+      background: rgba(212, 255, 0, 0.05);
+      bottom: 20%;
+      left: 10%;
+      animation-delay: -14s;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translate(0, 0) scale(1);
+      }
+      25% {
+        transform: translate(30px, -30px) scale(1.05);
+      }
+      50% {
+        transform: translate(-20px, 20px) scale(0.95);
+      }
+      75% {
+        transform: translate(20px, 10px) scale(1.02);
+      }
+    }
+
+    /* Radial glow */
     .page::before {
       content: '';
       position: absolute;
-      top: 20%;
+      top: 15%;
       left: 50%;
       transform: translateX(-50%);
-      width: 800px;
-      height: 500px;
-      background: radial-gradient(ellipse at center, rgba(212, 255, 0, 0.06) 0%, transparent 70%);
+      width: 900px;
+      height: 600px;
+      background: radial-gradient(ellipse at center, rgba(212, 255, 0, 0.07) 0%, transparent 70%);
       pointer-events: none;
       z-index: 0;
     }
@@ -114,6 +173,90 @@
       font-size: 13px;
     }
 
+    /* Main content wrapper - constrains side cards */
+    .main-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      min-height: 0;
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+    }
+
+    .main-container {
+      width: 100%;
+      max-width: 1400px;
+      display: flex;
+      position: relative;
+      padding: 0 20px;
+    }
+
+    /* Scrolling ribbon */
+    .ribbon-container {
+      width: 100vw;
+      margin-left: calc(-50vw + 50%);
+      overflow: hidden;
+      position: relative;
+      padding: 20px 0;
+      margin-top: 8px;
+      margin-bottom: 32px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.01);
+      opacity: 0;
+      animation: fadeIn 0.6s ease 0.5s forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .ribbon {
+      display: flex;
+      animation: scroll 30s linear infinite;
+      width: max-content;
+    }
+
+    .ribbon:hover {
+      animation-play-state: paused;
+    }
+
+    @keyframes scroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .ribbon-content {
+      display: flex;
+      align-items: center;
+      gap: 60px;
+      padding: 0 30px;
+    }
+
+    .ribbon-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      white-space: nowrap;
+    }
+
+    .ribbon-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--lime);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .ribbon-text {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-dim);
+      letter-spacing: 0.02em;
+    }
+
     /* Main content area */
     .main {
       flex: 1;
@@ -121,8 +264,6 @@
       flex-direction: column;
       min-height: 0;
       overflow: hidden;
-      position: relative;
-      z-index: 1;
     }
 
     /* Hero */
@@ -258,11 +399,6 @@
       }
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
     /* Responsive */
     @media (max-width: 768px) {
       .screenshot {
@@ -307,11 +443,22 @@
         margin-top: 16px;
         margin-bottom: 16px;
       }
+
+      .ribbon-container {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
   <div class="page">
+    <!-- Animated background orbs -->
+    <div class="bg-orbs">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+
     <nav>
       <a href="./" class="brand">
         <img src="assets/200x200.png" alt="blnk">
@@ -322,19 +469,49 @@
       </div>
     </nav>
 
-    <div class="main">
-      <div class="hero">
-        <h1><span class="white">PULL REQUESTS</span><br><span class="lime">BEFORE YOU BLINK.</span></h1>
-        <p class="tagline">GitHub PR status, reviews, and threads from your menu bar.<br>See what needs attention without opening a browser.</p>
-        <div class="cta-buttons">
-          <a href="https://github.com/karimalsaka/PRPulse/releases/download/v0.1.0/blnk.dmg" class="btn-primary">Download for Mac</a>
-          <a href="https://github.com/karimalsaka/PRPulse" class="btn-secondary">GitHub</a>
-        </div>
-      </div>
+    <div class="main-wrapper">
+      <div class="main-container">
+        <div class="main">
+          <div class="hero">
+            <h1><span class="white">PULL REQUESTS</span><br><span class="lime">BEFORE YOU BLINK.</span></h1>
+            <p class="tagline">GitHub PR status, reviews, and threads from your menu bar.<br>See what needs attention without opening a browser.</p>
+            <div class="cta-buttons">
+              <a href="https://github.com/karimalsaka/PRPulse/releases/download/v0.1.0/blnk.dmg" class="btn-primary">Download for Mac</a>
+              <a href="https://github.com/karimalsaka/PRPulse" class="btn-secondary">GitHub</a>
+            </div>
+          </div>
 
-      <div class="screenshot-area">
-        <div class="screenshot">
-          <img src="assets/screenshot-hero.png" alt="blnk interface">
+          <!-- Scrolling ribbon -->
+          <div class="ribbon-container">
+            <div class="ribbon">
+              <div class="ribbon-content">
+                <div class="ribbon-item"><span class="ribbon-dot"></span><span class="ribbon-text">Instant CI Status</span></div>
+                <div class="ribbon-item"><span class="ribbon-dot"></span><span class="ribbon-text">Review Requests Centralized</span></div>
+                <div class="ribbon-item"><span class="ribbon-dot"></span><span class="ribbon-text">No Browser Needed</span></div>
+                <div class="ribbon-item"><span class="ribbon-dot"></span><span class="ribbon-text">Direct to GitHub API</span></div>
+                <div class="ribbon-item"><span class="ribbon-dot"></span><span class="ribbon-text">Local Storage Only</span></div>
+                <div class="ribbon-item"><span class="ribbon-dot"></span><span class="ribbon-text">Read-Only Access</span></div>
+                <div class="ribbon-item"><span class="ribbon-dot"></span><span class="ribbon-text">Menu Bar Native</span></div>
+                <div class="ribbon-item"><span class="ribbon-dot"></span><span class="ribbon-text">Keyboard Shortcuts</span></div>
+              </div>
+              <div class="ribbon-content">
+                <div class="ribbon-item"><span class="ribbon-dot"></span><span class="ribbon-text">Instant CI Status</span></div>
+                <div class="ribbon-item"><span class="ribbon-dot"></span><span class="ribbon-text">Review Requests Centralized</span></div>
+                <div class="ribbon-item"><span class="ribbon-dot"></span><span class="ribbon-text">No Browser Needed</span></div>
+                <div class="ribbon-item"><span class="ribbon-dot"></span><span class="ribbon-text">Direct to GitHub API</span></div>
+                <div class="ribbon-item"><span class="ribbon-dot"></span><span class="ribbon-text">Local Storage Only</span></div>
+                <div class="ribbon-item"><span class="ribbon-dot"></span><span class="ribbon-text">Read-Only Access</span></div>
+                <div class="ribbon-item"><span class="ribbon-dot"></span><span class="ribbon-text">Menu Bar Native</span></div>
+                <div class="ribbon-item"><span class="ribbon-dot"></span><span class="ribbon-text">Keyboard Shortcuts</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="screenshot-area">
+            <div class="screenshot">
+              <img src="assets/screenshot-hero.png" alt="blnk interface">
+            </div>
+          </div>
         </div>
       </div>
     </div>
